@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.CitasPage"
+             Title="CitasPage"
+             BackgroundColor="#F4F7F9">
+
+    <VerticalStackLayout Padding="20,16" Spacing="14">
+
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Start">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Citas"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="{Binding TotalCitasTexto}"
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="＋ Nueva cita"
+                    Command="{Binding NuevaCitaCommand}"
+                    BackgroundColor="#0E7C7B"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="48"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <Label Text="{Binding AvisoApi}"
+               IsVisible="{Binding TieneAvisoApi}"
+               FontSize="12"
+               TextColor="#8A6D00"
+               BackgroundColor="#FFF3CD"
+               Padding="10,6" />
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Fecha" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <DatePicker Date="{Binding FechaFiltro}"
+                            BackgroundColor="White" TextColor="Black" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                <Label Text="Estado" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Picker ItemsSource="{Binding Estados}"
+                        SelectedItem="{Binding EstadoFiltro}"
+                        BackgroundColor="White" TextColor="Black" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+            <Switch IsToggled="{Binding MostrarTodasLasFechas}" />
+            <Label Text="Mostrar todas las fechas"
+                   FontSize="13"
+                   TextColor="#5A6B7A"
+                   VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <CollectionView ItemsSource="{Binding CitasFiltradas}"
+                        EmptyView="No hay citas para esa fecha y estado.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="14,12"
+                           Margin="0,0,0,10"
+                           StrokeShape="{RoundRectangle CornerRadius=12}"
+                           BackgroundColor="White">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerCitaCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout WidthRequest="56" Spacing="0" VerticalOptions="Center">
+                                <Label Text="{Binding Hora}" FontSize="16" FontAttributes="Bold" TextColor="#0F3556" HorizontalOptions="Center" />
+                                <Label Text="{Binding FechaCorta}" FontSize="11" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                                <Label Text="{Binding Duracion}" FontSize="11" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding PacienteNombre}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                <Label Text="{Binding Tratamiento}" FontSize="13" TextColor="#5A6B7A" />
+                                <Label Text="{Binding DentistaNombre, StringFormat='Con {0}'}" FontSize="12" TextColor="#5A6B7A" />
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="2"
+                                   Padding="8,4"
+                                   StrokeShape="{RoundRectangle CornerRadius=12}"
+                                   BackgroundColor="{Binding EstadoColor}"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding Estado}" FontSize="12" TextColor="White" FontAttributes="Bold" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+    
+</ContentPage>

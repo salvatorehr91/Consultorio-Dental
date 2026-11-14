@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.NuevaCitaPage"
+             BackgroundColor="#F4F7F9"
+             Title="Nueva Cita">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="14">
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Nueva cita"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="Elige paciente, dentista, fecha y hora. El estado inicial es Programada."
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+
+            <!-- Paciente -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Paciente *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Picker Title="Selecciona un paciente"
+                        ItemsSource="{Binding Pacientes}"
+                        ItemDisplayBinding="{Binding NombreCompleto}"
+                        SelectedItem="{Binding PacienteSeleccionado}"
+                        BackgroundColor="White" 
+                        TextColor="Black" />
+            </VerticalStackLayout>
+
+            <!-- Dentista -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Dentista *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Picker Title="Selecciona un dentista"
+                        ItemsSource="{Binding Dentistas}"
+                        ItemDisplayBinding="{Binding NombreCompleto}"
+                        SelectedItem="{Binding DentistaSeleccionado}"
+                        BackgroundColor="White" 
+                        TextColor="Black" />
+            </VerticalStackLayout>
+
+            <!-- Fecha y hora -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Fecha *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <DatePicker Date="{Binding Fecha}"
+                                BackgroundColor="White" 
+                                TextColor="Black" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Hora *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <TimePicker Time="{Binding Hora}"
+                                BackgroundColor="White" 
+                                TextColor="Black" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Tratamiento y duración -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Tratamiento" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Picker Title="Selecciona un tratamiento (opcional)"
+                        ItemsSource="{Binding Tratamientos}"
+                        ItemDisplayBinding="{Binding Nombre}"
+                        SelectedItem="{Binding TratamientoSeleccionado}"
+                        BackgroundColor="White" 
+                        TextColor="Black" />
+                <Label Text="{Binding TratamientoResumen}"
+                       FontSize="12"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Duración (min)" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <Picker Title="Duración"
+                            ItemsSource="{Binding Duraciones}"
+                            SelectedItem="{Binding DuracionMinutos}"
+                            BackgroundColor="White" 
+                            TextColor="Black" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Estado" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <Picker Title="Estado"
+                            ItemsSource="{Binding Estados}"
+                            SelectedItem="{Binding Estado}"
+                            BackgroundColor="White" 
+                            TextColor="Black" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Motivo y notas -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Motivo" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Entry Placeholder="Ej.: Limpieza dental"
+                       Text="{Binding Motivo}"
+                       BackgroundColor="White" 
+                       TextColor="Black" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Notas" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Editor Placeholder="Notas para el dentista (opcional)"
+                        Text="{Binding Notas}"
+                        AutoSize="TextChanges"
+                        BackgroundColor="White"
+                        TextColor="Black" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding MensajeError}"
+                   FontSize="13"
+                   TextColor="#B3261E"
+                   IsVisible="{Binding TieneError}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="1"
+                        Text="Guardar cita"
+                        Command="{Binding GuardarCommand}"
+                        BackgroundColor="#0E7C7B"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+            </Grid>
+
+            <Label Text="Al guardar, la cita aparece en «Citas de hoy» de la página principal."
+                   FontSize="12"
+                   TextColor="#7A8A99" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+    
+</ContentPage>

@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:maui_clinicadental="clr-namespace:Maui_ClinicaDental" x:DataType="maui_clinicadental:NuevaCitaViewModel"
+             Title="Consultorio Dental"
+             x:Class="Maui_ClinicaDental.MainPage"
+             BackgroundColor="#F4F7F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="16">
+
+            <!-- Encabezado -->
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Start">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Consultorio Dental"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#0F3556" />
+                    <Label Text="{Binding FechaHoy, StringFormat='Hoy, {0:dddd dd MMMM yyyy}'}"
+                           FontSize="14"
+                           TextColor="#5A6B7A" />
+                </VerticalStackLayout>
+                
+                <Border Grid.Column="1"
+                        Padding="10"
+                        BackgroundColor="Transparent"
+                        VerticalOptions="Center">
+                    <Label Text="🦷"
+                           FontSize="20"
+                           Padding="10"
+                           HorizontalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- Buscador -->
+            <SearchBar Placeholder="Buscar paciente por nombre o teléfono…"
+                       SearchCommand="{Binding BuscarPacienteCommand}"
+                       SearchCommandParameter="{Binding Source={RelativeSource Self}, Path=Text}"
+                       BackgroundColor="White"
+                       TextColor="Blue"/>
+
+            <!-- Resumen del día -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Border Padding="14,12" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding CitasHoyCount}" FontSize="24" FontAttributes="Bold" TextColor="#0F3556" HorizontalOptions="Center" />
+                        <Label Text="Citas hoy" FontSize="12" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" Padding="14,12" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding TotalPacientes}" FontSize="24" FontAttributes="Bold" TextColor="#0F3556" HorizontalOptions="Center" />
+                        <Label Text="Pacientes" FontSize="12" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="2" Padding="14,12" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="{Binding ProximaCitaHora}" FontSize="24" FontAttributes="Bold" TextColor="#0E7C7B" HorizontalOptions="Center" />
+                        <Label Text="Próxima cita" FontSize="12" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Acciones rápidas -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Button Text="＋ Nueva cita"
+                        Command="{Binding NuevaCitaCommand}"
+                        BackgroundColor="#0E7C7B"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="1"
+                        Text="＋ Paciente"
+                        Command="{Binding NuevoPacienteCommand}"
+                        BackgroundColor="#0F3556"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="2"
+                        Text="Pacientes"
+                        Command="{Binding VerPacientesCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+            </Grid>
+
+            <!-- Citas de hoy -->
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                <Label Text="Citas de hoy"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Grid.Column="1"
+                       Text="Ver todas ›"
+                       FontSize="14"
+                       TextColor="#0E7C7B"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding VerCitasCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+
+            <CollectionView ItemsSource="{Binding CitasHoy}"
+                            EmptyView="No hay citas programadas para hoy.">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="14,12"
+                               Margin="0,0,0,10"
+                               BackgroundColor="White">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <!-- Hora -->
+                                <VerticalStackLayout WidthRequest="56" Spacing="0" VerticalOptions="Center">
+                                    <Label Text="{Binding Hora}" FontSize="16" FontAttributes="Bold" TextColor="#0F3556" HorizontalOptions="Center" />
+                                    <Label Text="{Binding Duracion}" FontSize="11" TextColor="#5A6B7A" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+
+                                <!-- Paciente y tratamiento -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding PacienteNombre}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                    <Label Text="{Binding Tratamiento}" FontSize="13" TextColor="#5A6B7A" />
+                                    <Label Text="{Binding DentistaNombre, StringFormat='Con {0}'}" FontSize="12" TextColor="#5A6B7A" />
+                                </VerticalStackLayout>
+
+                                <!-- Estado -->
+                                <Border Grid.Column="2"
+                                       Padding="8,4"
+                                       BackgroundColor="{Binding EstadoColor}"
+                                       VerticalOptions="Center">
+                                    <Label Text="{Binding Estado}" FontSize="12" TextColor="White" FontAttributes="Bold" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Próximos pacientes / nota -->
+            <Label Text="Consejo: toca una cita para ver el expediente del paciente y registrar el tratamiento realizado."
+                   FontSize="12"
+                   TextColor="#7A8A99" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+    
+</ContentPage>

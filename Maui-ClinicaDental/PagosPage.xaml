@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.PagosPage"
+             Title="Pagos"
+             BackgroundColor="#F4F7F9">
+
+    <Grid Padding="20,16"
+          RowSpacing="12"
+          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto,Auto">
+
+        <VerticalStackLayout Spacing="2">
+            <Label Text="Historial de pagos"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="#0F3556" />
+            <Label Text="{Binding TotalTexto}"
+                   FontSize="14"
+                   TextColor="#5A6B7A" />
+        </VerticalStackLayout>
+
+        <Label Grid.Row="1"
+               Text="{Binding AvisoApi}"
+               IsVisible="{Binding TieneAvisoApi}"
+               FontSize="12"
+               TextColor="#8A6D00"
+               BackgroundColor="#FFF3CD"
+               Padding="10,6" />
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Desde" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <DatePicker Date="{Binding FechaDesde, Mode=TwoWay}" BackgroundColor="White" TextColor="Black" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                <Label Text="Hasta" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <DatePicker Date="{Binding FechaHasta, Mode=TwoWay}" BackgroundColor="White" TextColor="Black" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="4">
+            <Label Text="Paciente" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+            <Picker ItemsSource="{Binding Pacientes}"
+                    ItemDisplayBinding="{Binding NombreCompleto}"
+                    SelectedItem="{Binding PacienteFiltro, Mode=TwoWay}"
+                    IsEnabled="{Binding FiltroPacienteHabilitado}"
+                    BackgroundColor="White" TextColor="Black" />
+            <Label Text="{Binding PacienteSeleccionadoTexto}"
+                   IsVisible="{Binding PacienteBloqueado}"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   TextColor="#0E7C7B" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="4" Spacing="4">
+            <Label Text="Método de pago" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+            <Picker ItemsSource="{Binding Metodos}"
+                    SelectedItem="{Binding MetodoFiltro}"
+                    BackgroundColor="White" TextColor="Black" />
+        </VerticalStackLayout>
+
+        <Button Grid.Row="5"
+                Text="Limpiar filtros"
+                Command="{Binding LimpiarFiltrosCommand}"
+                BackgroundColor="White"
+                TextColor="#0F3556"
+                BorderColor="#0F3556"
+                BorderWidth="1"
+                CornerRadius="10"
+                HeightRequest="44" />
+
+        <CollectionView Grid.Row="6"
+                        ItemsSource="{Binding PagosFiltrados}"
+                        VerticalOptions="Fill"
+                        EmptyView="No hay pagos para esos filtros.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="14,12"
+                            Margin="0,0,0,10"
+                            StrokeShape="{RoundRectangle CornerRadius=12}"
+                            BackgroundColor="White">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerComprobanteCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding PacienteNombre}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                <Label Text="{Binding Tratamiento}" FontSize="13" TextColor="#5A6B7A" />
+                                <Label Text="{Binding FechaTexto}" FontSize="12" TextColor="#5A6B7A" />
+                                <Label Text="{Binding MetodoPago}" FontSize="12" TextColor="#5A6B7A" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding MontoTexto}" FontSize="16" FontAttributes="Bold" TextColor="#0E7C7B" HorizontalOptions="End" />
+                                <Label Text="{Binding Estado}" FontSize="12" TextColor="#5A6B7A" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Comprobante del pago seleccionado. Solo ocupa su fila cuando
+             TieneComprobante es true; con el botón Cerrar (o tocando de
+             nuevo el mismo pago) se oculta y la lista recupera el espacio. -->
+        <Border Grid.Row="7"
+               Padding="14,12"
+               StrokeShape="{RoundRectangle CornerRadius=12}"
+               BackgroundColor="White"
+               IsVisible="{Binding TieneComprobante}">
+            <VerticalStackLayout Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="{Binding ComprobanteTitulo}" FontSize="16" FontAttributes="Bold" TextColor="#0F3556" VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="✕ Cerrar"
+                            Command="{Binding CerrarComprobanteCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#0F3556"
+                            FontAttributes="Bold"
+                            Padding="8,4"
+                            HeightRequest="36" />
+                </Grid>
+                <Label Text="{Binding ComprobanteDetalle}" FontSize="13" TextColor="#5A6B7A" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="Compartir"
+                            Command="{Binding CompartirComprobanteCommand}"
+                            BackgroundColor="#0F3556"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="48" />
+                    <Button Grid.Column="1"
+                            Text="Abrir para imprimir"
+                            Command="{Binding ImprimirComprobanteCommand}"
+                            BackgroundColor="#0E7C7B"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="48" />
+                </Grid>
+                <Label Text="Imprimir abre el comprobante en el navegador: ahí usa Ctrl+P o el menú Imprimir. Compartir lo manda por el menú del sistema, que también ofrece Imprimir."
+                       FontSize="12"
+                       TextColor="#7A8A99" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Label Grid.Row="8"
+               Text="Toca un pago para ver su comprobante. Tócalo de nuevo o pulsa Cerrar para ocultarlo."
+               FontSize="12"
+               TextColor="#7A8A99" />
+
+    </Grid>
+    
+</ContentPage>

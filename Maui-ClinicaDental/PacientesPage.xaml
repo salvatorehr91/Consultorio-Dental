@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.PacientesPage"
+             Title="Pacientes"
+             BackgroundColor="#F4F7F9">
+
+    <VerticalStackLayout Padding="20,16" Spacing="14">
+
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Start">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Pacientes"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="{Binding TotalPacientesTexto}"
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="＋ Nuevo"
+                    Command="{Binding NuevoPacienteCommand}"
+                    BackgroundColor="#0E7C7B"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="48"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <SearchBar Placeholder="Buscar por nombre o teléfono…"
+                   Text="{Binding TextoBusqueda}"
+                   BackgroundColor="White" 
+                   TextColor="Black" />
+
+        <CollectionView ItemsSource="{Binding PacientesFiltrados}"
+                        EmptyView="No hay pacientes que coincidan con la búsqueda.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="14,12"
+                           Margin="0,0,0,10"
+                           StrokeShape="{RoundRectangle CornerRadius=12}"
+                           BackgroundColor="White">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerPacienteCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Padding="0"
+                                   WidthRequest="44"
+                                   HeightRequest="44"
+                                   StrokeShape="{RoundRectangle CornerRadius=22}"
+                                   BackgroundColor="#0E7C7B"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding Iniciales}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding NombreCompleto}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                <Label Text="{Binding Telefono}" FontSize="13" TextColor="#5A6B7A" />
+                                <Label Text="{Binding Email}" FontSize="12" TextColor="#5A6B7A" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Text="Toca un paciente para ver sus datos. Desde ahí puedes crearle una cita."
+               FontSize="12"
+               TextColor="#7A8A99" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

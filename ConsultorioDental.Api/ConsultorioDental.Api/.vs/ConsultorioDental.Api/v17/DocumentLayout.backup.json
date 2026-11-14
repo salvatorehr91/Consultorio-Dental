@@ -1,0 +1,204 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\controllers\\pacientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:controllers\\pacientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\controllers\\diagnosticocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:controllers\\diagnosticocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\controllers\\dentistascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:controllers\\dentistascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\controllers\\tratamientoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:controllers\\tratamientoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\controllers\\citascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:controllers\\citascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\context\\consultoriodbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:context\\consultoriodbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\appsettings.staging.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:appsettings.staging.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\dtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:dtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|c:\\devs\\maui-clinicadental\\consultoriodental.api\\consultoriodental.api\\models\\entidades.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{009EF595-4DA2-4E81-89CB-1A0E742FD889}|ConsultorioDental.Api.csproj|solutionrelative:models\\entidades.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DiagnosticoController.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\DiagnosticoController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DiagnosticoController.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\DiagnosticoController.cs",
+              "RelativeToolTip": "Controllers\\DiagnosticoController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-12T05:02:34.486Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "CitasController.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\CitasController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CitasController.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\CitasController.cs",
+              "RelativeToolTip": "Controllers\\CitasController.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T19:32:52.098Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\launchSettings.json",
+              "RelativeDocumentMoniker": "launchSettings.json",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\launchSettings.json",
+              "RelativeToolTip": "launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-11T23:48:27.337Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PacientesController.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\PacientesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PacientesController.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\PacientesController.cs",
+              "RelativeToolTip": "Controllers\\PacientesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T20:03:03.933Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TratamientosController.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\TratamientosController.cs",
+              "RelativeDocumentMoniker": "Controllers\\TratamientosController.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\TratamientosController.cs",
+              "RelativeToolTip": "Controllers\\TratamientosController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T20:09:24.898Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ConsultorioDbContext.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Context\\ConsultorioDbContext.cs",
+              "RelativeDocumentMoniker": "Context\\ConsultorioDbContext.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Context\\ConsultorioDbContext.cs",
+              "RelativeToolTip": "Context\\ConsultorioDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-12T04:55:52.537Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAIwCEAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T23:51:35.855Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DentistasController.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\DentistasController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DentistasController.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Controllers\\DentistasController.cs",
+              "RelativeToolTip": "Controllers\\DentistasController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T19:52:07.853Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "appsettings.Staging.json",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\appsettings.Staging.json",
+              "RelativeDocumentMoniker": "appsettings.Staging.json",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\appsettings.Staging.json",
+              "RelativeToolTip": "appsettings.Staging.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-11T23:56:05.341Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Dtos.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Dtos.cs",
+              "RelativeDocumentMoniker": "Dtos.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Dtos.cs",
+              "RelativeToolTip": "Dtos.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T19:26:00.642Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Entidades.cs",
+              "DocumentMoniker": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Models\\Entidades.cs",
+              "RelativeDocumentMoniker": "Models\\Entidades.cs",
+              "ToolTip": "C:\\Devs\\Maui-ClinicaDental\\ConsultorioDental.Api\\ConsultorioDental.Api\\Models\\Entidades.cs",
+              "RelativeToolTip": "Models\\Entidades.cs",
+              "ViewState": "AgIAAC4AAAAAAAAAAAAQwD8AAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T19:30:49.716Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
