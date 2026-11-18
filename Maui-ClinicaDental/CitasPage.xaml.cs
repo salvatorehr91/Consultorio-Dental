@@ -30,8 +30,7 @@ public class CitasViewModel : INotifyPropertyChanged
     private readonly ApiService _api;
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    // Las 3 de hoy son las de ConsultorioDental.sql / MainPage.
-    // La 4ª (mañana) es solo para probar el filtro de fecha sin API.
+    // Datos de prueba
     private List<CitaItem> _todas = new()
     {
         new() { Id = 1, FechaHora = DateTime.Today.AddHours(9), DuracionMinutos = 45, PacienteNombre = "María López", Tratamiento = "Limpieza dental", DentistaNombre = "Dra. Ana Pérez", Estado = "Confirmada" },
@@ -55,6 +54,7 @@ public class CitasViewModel : INotifyPropertyChanged
         get => _avisoApi;
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
+
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
 
     private DateTime _fechaFiltro = DateTime.Today;
@@ -90,7 +90,7 @@ public class CitasViewModel : INotifyPropertyChanged
     }
 
     public async Task CargarDesdeApiAsync()
-    {;
+    {
         var citas = await _api.GetCitasAsync((MostrarTodasLasFechas ? null : FechaFiltro), EstadoFiltro);
         if (citas is null)
         {
@@ -143,7 +143,10 @@ public class CitasViewModel : INotifyPropertyChanged
                 await RegistrarPagoAsync(cita);
                 break;
             case "Ver pagos":
-                await Shell.Current.GoToAsync($"{nameof(PagosPage)}?citaId={cita.Id}&pacienteNombre={cita.PacienteNombre}");
+                await Shell.Current.GoToAsync(
+                    $"{nameof(PagosPage)}?citaId={cita.Id}" +
+                    $"&pacienteId={cita.PacienteId}" +
+                    $"&pacienteNombre={Uri.EscapeDataString(cita.PacienteNombre)}");
                 break;
             case "Ver detalle":
                 await MostrarDetalleAsync(cita);
