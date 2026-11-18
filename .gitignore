@@ -5,3 +5,13 @@
 /ConsultorioDental.Api/bin/Debug/net8.0
 /ConsultorioDental.Api/.vs
 /ConsultorioDental.Api/obj
+ConsultorioDental.Api/ConsultorioDental.Api/Program.cs
+ConsultorioDental.Api/ConsultorioDental.Api/appsettings.Development.json
+ConsultorioDental.Api/ConsultorioDental.Api/appsettings.Staging.json
+ConsultorioDental.Api/ConsultorioDental.Api/appsettings.Production.json
+ConsultorioDental.Api/ConsultorioDental.Api/appsettings.Development.example.json
+ConsultorioDental.Api/ConsultorioDental.Api/appsettings.Staging.example.json
+Maui-ClinicaDental/PagosPage.xaml.cs
+Maui-ClinicaDental/CitasPage.xaml.cs
+Maui-ClinicaDental/Models/Citas.cs
+Maui-ClinicaDental/Models/ApiModels.cs
