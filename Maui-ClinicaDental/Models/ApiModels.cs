@@ -141,6 +141,7 @@ public static class ApiModelExtensions
     public static CitaItem ToCitaItem(this CitaDto d) => new()
     {
         Id = d.CitaId,
+        PacienteId = d.PacienteId,
         FechaHora = d.FechaHora,
         DuracionMinutos = d.DuracionMinutos,
         PacienteNombre = d.PacienteNombre,
