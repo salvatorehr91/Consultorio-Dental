@@ -16,6 +16,9 @@
     public class CitaItem
     {
         public int Id { get; init; }
+        // CORRECCIÓN 2026-11-14: faltaba el id del paciente. Sin él,
+        // "Ver pagos" desde Citas solo podía mandar el nombre.
+        public int PacienteId { get; init; }
         public DateTime FechaHora { get; init; }
         public int DuracionMinutos { get; init; }
         public string PacienteNombre { get; init; } = string.Empty;

@@ -6,8 +6,14 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("SqlConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Falta la cadena de conexión 'SqlConnection' en appsettings.json. " +
+        "Revisa ConnectionStrings:SqlConnection y reinicia el API.");
+
 builder.Services.AddDbContext<ConsultorioDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
 

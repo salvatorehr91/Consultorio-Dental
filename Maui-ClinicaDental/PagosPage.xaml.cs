@@ -48,7 +48,13 @@ public partial class PagosPage : ContentPage
         set
         {
             if (int.TryParse(value, out var id))
+            {
                 ViewModel.PacienteId = id;
+                // CORRECCIÓN 2026-11-14: faltaba esta llamada. Sin ella,
+                // navegar solo con ?pacienteId= no bloqueaba el Picker;
+                // solo lo hacía ?pacienteNombre=.
+                ViewModel.BloquearFiltroPaciente();
+            }
         }
     }
 
