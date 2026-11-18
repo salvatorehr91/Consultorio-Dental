@@ -35,9 +35,9 @@ namespace Maui_ClinicaDental.Service
                     return BaseUrlOverride.TrimEnd('/') + "/";
 
 #if ANDROID
-                return "https://10.0.2.3:5000/";
+                return "http://10.0.2.2:5000/";
 #else
-            return "https://localhost:65350/";
+                return "https://localhost:65350/";
 #endif
             }
         }
