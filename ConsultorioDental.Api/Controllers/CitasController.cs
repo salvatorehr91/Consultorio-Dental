@@ -21,6 +21,23 @@ public class CitasController : ControllerBase
     private static readonly string[] EstadosValidos =
         { "Programada", "Confirmada", "Completada", "Cancelada", "NoAsistio" };
 
+
+    // CORRECCIÓN 2026-11-18 — Zona horaria UTC-6 (centro de México).
+    // No hay un "ajuste de zona horaria" en ASP.NET Core: DateTime.Today
+    // usa la zona del sistema operativo del servidor, y si el servidor
+    // está en UTC, "hoy" cambia 6 horas antes que en CDMX.
+    // Por eso "hoy" se calcula en UTC y se convierte a UTC-6.
+    // El id de Windows es "Central Standard Time" (UTC-6, sin horario
+    // de verano en México desde 2022); en Linux es "America/Mexico_City".
+    // NO se cambia lo que se guarda: FechaPago sigue en UTC y la app
+    // ya lo muestra con ToLocalTime(); solo cambia qué día es "hoy".
+    private static readonly TimeZoneInfo ZonaMexico = TimeZoneInfo.FindSystemTimeZoneById(
+        OperatingSystem.IsWindows() ? "Central Standard Time" : "America/Mexico_City");
+
+    // Día actual en UTC-6.
+    private static DateTime HoyEnMexico() =>
+        TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ZonaMexico).Date;
+
     private readonly ConsultorioDbContext _db;
     public CitasController(ConsultorioDbContext db) => _db = db;
 
@@ -61,7 +78,7 @@ public class CitasController : ControllerBase
      [HttpGet("hoy")]
     public async Task<ActionResult<IEnumerable<CitaDto>>> GetHoy()
     {
-        var hoy = DateTime.Today;
+        var hoy = HoyEnMexico();
         var citas = await QueryBase()
             .Where(c => c.FechaHora.Date == hoy)
             .OrderBy(c => c.FechaHora)
