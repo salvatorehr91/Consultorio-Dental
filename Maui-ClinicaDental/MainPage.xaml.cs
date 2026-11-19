@@ -64,6 +64,10 @@ namespace Maui_ClinicaDental
         public ICommand NuevoPacienteCommand { get; }
         public ICommand VerPacientesCommand { get; }
         public ICommand VerCitasCommand { get; }
+        // 2026-11-19: accesos a las páginas nuevas de dentistas y
+        // tratamientos, desde las acciones rápidas de MainPage.
+        public ICommand VerDentistasCommand { get; }
+        public ICommand VerTratamientosCommand { get; }
 
         public MainPageViewModel(ApiService? api = null)
         {
@@ -73,6 +77,8 @@ namespace Maui_ClinicaDental
             NuevoPacienteCommand = new Command(async () => await NavegarAsync("NuevoPacientePage", "Nuevo paciente"));
             VerPacientesCommand = new Command(async () => await NavegarAsync("PacientesPage", "Pacientes"));
             VerCitasCommand = new Command(async () => await NavegarAsync("CitasPage", "Citas"));
+            VerDentistasCommand = new Command(async () => await NavegarAsync("DentistasPage", "Dentistas"));
+            VerTratamientosCommand = new Command(async () => await NavegarAsync("TratamientosPage", "Tratamientos"));
         }
 
         public async Task CargarDesdeApiAsync()

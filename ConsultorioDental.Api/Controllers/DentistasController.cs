@@ -2,6 +2,11 @@
 // GET    /api/dentistas
 // GET    /api/dentistas/{id}
 // POST   /api/dentistas
+// PUT    /api/dentistas/{id}         — edita (200 con el dentista)
+// DELETE /api/dentistas/{id}         — baja lógica (Activo = false, 204).
+//        No se borra la fila: sus citas quedan intactas en el historial.
+//        Un dentista dado de baja ya no aparece en la lista ni se le
+//        pueden crear citas nuevas (POST /api/citas exige Activo).
 
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
@@ -57,5 +62,38 @@ public class DentistasController : ControllerBase
         await _db.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetById), new { id = dentista.DentistaId }, ToDto(dentista));
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<DentistaDto>> Put(int id, ActualizarDentistaDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Apellido) ||
+            string.IsNullOrWhiteSpace(dto.Especialidad))
+            return BadRequest("Nombre, Apellido y Especialidad son obligatorios.");
+
+        var dentista = await _db.Dentistas.FindAsync(id);
+        if (dentista is null)
+            return NotFound();
+
+        dentista.Nombre = dto.Nombre.Trim();
+        dentista.Apellido = dto.Apellido.Trim();
+        dentista.Especialidad = dto.Especialidad.Trim();
+        dentista.Telefono = dto.Telefono;
+        dentista.Email = dto.Email;
+
+        await _db.SaveChangesAsync();
+        return Ok(ToDto(dentista));
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var dentista = await _db.Dentistas.FindAsync(id);
+        if (dentista is null || !dentista.Activo)
+            return NotFound();
+
+        dentista.Activo = false;
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 }

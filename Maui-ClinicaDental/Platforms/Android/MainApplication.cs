@@ -5,6 +5,10 @@ using Maui_ClinicaDental;
 
 [Application(UsesCleartextTraffic = true)]
 #else
+using Android.App;
+using Android.Runtime;
+using Maui_ClinicaDental;
+
 [Application]
 #endif
 public class MainApplication : MauiApplication

@@ -5,9 +5,16 @@
              Title="Pacientes"
              BackgroundColor="#F4F7F9">
 
-    <VerticalStackLayout Padding="20,16" Spacing="14">
+    <!-- 2026-11-19: mismo arreglo que en CitasPage. La raíz era un
+         VerticalStackLayout y el CollectionView pedía altura infinita,
+         así que con muchos pacientes la lista no desplazaba. Ahora la
+         raíz es un Grid y la lista vive en una fila "*" (acotada, con
+         scroll propio). -->
+    <Grid Padding="20,16"
+          RowSpacing="14"
+          RowDefinitions="Auto,Auto,Auto,*,Auto">
 
-        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Start">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Start">
             <VerticalStackLayout Spacing="2">
                 <Label Text="Pacientes"
                        FontSize="26"
@@ -27,12 +34,26 @@
                     VerticalOptions="Center" />
         </Grid>
 
-        <SearchBar Placeholder="Buscar por nombre o teléfono…"
+        <!-- 2026-11-19: esta página NO tenía el aviso del API. Cuando
+             la llamada fallaba, mostraba los datos de ejemplo sin decir
+             nada, así que parecía que "no se conectaba" sin más pista.
+             CitasPage y TratamientosPage sí lo tienen. Con este Label,
+             si el API no responde, se ve el motivo exacto en amarillo. -->
+        <Label Grid.Row="1"
+               Text="{Binding AvisoApi}"
+               IsVisible="{Binding TieneAvisoApi}"
+               FontSize="12"
+               TextColor="#8A6D00"
+               BackgroundColor="#FFF3CD"
+               Padding="10,6" />
+
+        <SearchBar Grid.Row="2" Placeholder="Buscar por nombre o teléfono…"
                    Text="{Binding TextoBusqueda}"
-                   BackgroundColor="White" 
+                   BackgroundColor="White"
                    TextColor="Black" />
 
-        <CollectionView ItemsSource="{Binding PacientesFiltrados}"
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding PacientesFiltrados}"
                         EmptyView="No hay pacientes que coincidan con la búsqueda.">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -69,10 +90,11 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Label Text="Toca un paciente para ver sus datos. Desde ahí puedes crearle una cita."
+        <Label Grid.Row="4"
+               Text="Toca un paciente para ver sus datos. Desde ahí puedes crearle una cita."
                FontSize="12"
                TextColor="#7A8A99" />
 
-    </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>

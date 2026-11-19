@@ -62,7 +62,8 @@ public record CitaDto(
     [property: JsonPropertyName("estado")] string Estado,
     [property: JsonPropertyName("tratamiento")] string Tratamiento,
     [property: JsonPropertyName("motivo")] string? Motivo,
-    [property: JsonPropertyName("notas")] string? Notas);
+    [property: JsonPropertyName("notas")] string? Notas,
+    [property: JsonPropertyName("tratamientoId")] int? TratamientoId = null);
 
 // GET /api/pagos — un pago de dbo.Pagos, ya con el paciente,
 // el tratamiento y la fecha de la cita resueltos por el servidor,
@@ -124,6 +125,44 @@ public record CrearPagoRequest(
 public record CambiarEstadoRequest(
     [property: JsonPropertyName("estado")] string Estado);
 
+// Lo que se envía al editar (PUT /api/{entidad}/{id}).
+// Mismos campos que los Crear* del servidor (ActualizarPacienteDto,
+// ActualizarDentistaDto, ActualizarTratamientoDto, ActualizarCitaDto
+// en ConsultorioDental.Api/Data/Dtos.cs), en camelCase.
+// En ActualizarCitaRequest, TratamientoId es opcional: si viene, el
+// servidor reemplaza el tratamiento de la cita; si no viene (null),
+// el tratamiento queda como estaba.
+public record ActualizarPacienteRequest(
+    [property: JsonPropertyName("nombre")] string Nombre,
+    [property: JsonPropertyName("apellido")] string Apellido,
+    [property: JsonPropertyName("fechaNacimiento")] DateTime? FechaNacimiento,
+    [property: JsonPropertyName("telefono")] string? Telefono,
+    [property: JsonPropertyName("email")] string? Email,
+    [property: JsonPropertyName("direccion")] string? Direccion);
+
+public record ActualizarDentistaRequest(
+    [property: JsonPropertyName("nombre")] string Nombre,
+    [property: JsonPropertyName("apellido")] string Apellido,
+    [property: JsonPropertyName("especialidad")] string Especialidad,
+    [property: JsonPropertyName("telefono")] string? Telefono,
+    [property: JsonPropertyName("email")] string? Email);
+
+public record ActualizarTratamientoRequest(
+    [property: JsonPropertyName("nombre")] string Nombre,
+    [property: JsonPropertyName("descripcion")] string? Descripcion,
+    [property: JsonPropertyName("precio")] decimal Precio,
+    [property: JsonPropertyName("duracionMinutos")] int DuracionMinutos);
+
+public record ActualizarCitaRequest(
+    [property: JsonPropertyName("pacienteId")] int PacienteId,
+    [property: JsonPropertyName("dentistaId")] int DentistaId,
+    [property: JsonPropertyName("fechaHora")] DateTime FechaHora,
+    [property: JsonPropertyName("duracionMinutos")] int DuracionMinutos,
+    [property: JsonPropertyName("estado")] string Estado,
+    [property: JsonPropertyName("motivo")] string? Motivo,
+    [property: JsonPropertyName("notas")] string? Notas,
+    [property: JsonPropertyName("tratamientoId")] int? TratamientoId);
+
 // Conversiones DTO -> modelos que ya usan las páginas.
 public static class ApiModelExtensions
 {
@@ -138,16 +177,29 @@ public static class ApiModelExtensions
         Direccion = d.Direccion,
     };
 
+    public static DentistaItem ToDentistaItem(this DentistaDto d) => new()
+    {
+        Id = d.DentistaId,
+        Nombre = d.Nombre,
+        Apellido = d.Apellido,
+        Especialidad = d.Especialidad,
+        Telefono = d.Telefono,
+        Email = d.Email,
+    };
+
     public static CitaItem ToCitaItem(this CitaDto d) => new()
     {
         Id = d.CitaId,
         PacienteId = d.PacienteId,
+        DentistaId = d.DentistaId,
+        TratamientoId = d.TratamientoId,
         FechaHora = d.FechaHora,
         DuracionMinutos = d.DuracionMinutos,
         PacienteNombre = d.PacienteNombre,
         Tratamiento = d.Tratamiento,
         DentistaNombre = d.DentistaNombre,
         Estado = d.Estado,
+        Motivo = d.Motivo,
         Notas = d.Notas,
     };
 

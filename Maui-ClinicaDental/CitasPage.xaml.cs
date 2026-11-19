@@ -132,7 +132,9 @@ public class CitasViewModel : INotifyPropertyChanged
             "Ver detalle",
             "Cambiar estado",
             "Registrar pago",
-            "Ver pagos");
+            "Ver pagos",
+            "Editar",
+            "Eliminar");
 
         switch (accion)
         {
@@ -151,7 +153,40 @@ public class CitasViewModel : INotifyPropertyChanged
             case "Ver detalle":
                 await MostrarDetalleAsync(cita);
                 break;
+            case "Editar":
+                // NuevaCitaPage en modo edición: precarga el formulario
+                // con los datos de esta cita.
+                await Shell.Current.GoToAsync(
+                    $"{nameof(NuevaCitaPage)}?citaId={cita.Id}");
+                break;
+            case "Eliminar":
+                await EliminarCitaAsync(cita);
+                break;
         }
+    }
+
+    // Eliminar es un borrado real en el servidor, con confirmación.
+    // Si la cita ya tiene pagos, el servidor devuelve 409 y el
+    // mensaje explica que hay que cancelarla en vez de borrarla.
+    private async Task EliminarCitaAsync(CitaItem cita)
+    {
+        var confirmar = await Shell.Current.DisplayAlertAsync(
+            "Eliminar cita",
+            $"¿Eliminar la cita de {cita.PacienteNombre} del {cita.FechaHora:dd/MM/yyyy HH:mm}?",
+            "Eliminar", "Cancelar");
+        if (!confirmar) return;
+
+        var (ok, error) = await _api.EliminarCitaAsync(cita.Id);
+        if (!ok)
+        {
+            await Shell.Current.DisplayAlertAsync(
+                "No se pudo eliminar", error ?? "El servidor no eliminó la cita.", "OK");
+            return;
+        }
+
+        await CargarDesdeApiAsync();
+        await Shell.Current.DisplayAlertAsync(
+            "Cita eliminada", $"La cita de {cita.PacienteNombre} fue eliminada.", "OK");
     }
 
     private static Task MostrarDetalleAsync(CitaItem cita)

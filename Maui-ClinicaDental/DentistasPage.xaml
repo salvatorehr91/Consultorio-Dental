@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.DentistasPage"
+             Title="Dentistas"
+             BackgroundColor="#F4F7F9">
+
+    <!-- 2026-11-19: la raíz es un Grid, no un VerticalStackLayout.
+         Con VerticalStackLayout el CollectionView pedía altura infinita
+         y con muchos dentistas la lista no desplazaba (mismo problema
+         que CitasPage). La lista vive en la fila "*" (acotada, con
+         scroll propio). -->
+    <Grid Padding="20,16"
+          RowSpacing="14"
+          RowDefinitions="Auto,Auto,*,Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Start">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Dentistas"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="{Binding TotalDentistasTexto}"
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="＋ Nuevo"
+                    Command="{Binding NuevoDentistaCommand}"
+                    BackgroundColor="#0E7C7B"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="48"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <Label Grid.Row="1"
+               Text="{Binding AvisoApi}"
+               IsVisible="{Binding TieneAvisoApi}"
+               FontSize="12"
+               TextColor="#8A6D00"
+               BackgroundColor="#FFF3CD"
+               Padding="10,6" />
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Dentistas}"
+                        EmptyView="No hay dentistas registrados.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="14,12"
+                           Margin="0,0,0,10"
+                           StrokeShape="{RoundRectangle CornerRadius=12}"
+                           BackgroundColor="White">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerDentistaCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border Padding="0"
+                                   WidthRequest="44"
+                                   HeightRequest="44"
+                                   StrokeShape="{RoundRectangle CornerRadius=22}"
+                                   BackgroundColor="#0F3556"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding Iniciales}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding NombreCompleto}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                <Label Text="{Binding Especialidad}" FontSize="13" TextColor="#5A6B7A" />
+                                <Label Text="{Binding Telefono}" FontSize="12" TextColor="#5A6B7A" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="3"
+               Text="Toca un dentista para editarlo o eliminarlo."
+               FontSize="12"
+               TextColor="#7A8A99" />
+
+    </Grid>
+
+</ContentPage>
