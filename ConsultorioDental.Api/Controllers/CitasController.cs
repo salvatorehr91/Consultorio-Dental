@@ -3,8 +3,13 @@
 // GET    /api/citas/hoy
 // GET    /api/citas/{id}
 // POST   /api/citas — crea la cita y, si viene TratamientoId,
+// PUT    /api/citas/{id}         — edita la cita completa (200)
 // PUT    /api/citas/{id}/estado — cambia solo el Estado
 //        (Programada/Confirmada/Completada/Cancelada/NoAsistio).
+// DELETE /api/citas/{id}         — borra la cita (204). Solo si no
+//        tiene pagos: si tiene, devuelve 409 para no romper el
+//        historial de pagos. Sus filas de CitaTratamientos se borran
+//        junto con ella.
 
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
@@ -21,6 +26,18 @@ public class CitasController : ControllerBase
     private static readonly string[] EstadosValidos =
         { "Programada", "Confirmada", "Completada", "Cancelada", "NoAsistio" };
 
+    // Zona horaria UTC-6 (centro de México). DateTime.Today usa la zona
+    // del sistema operativo del servidor; si está en UTC, "hoy" cambia
+    // 6 horas antes que en CDMX. Por eso "hoy" se calcula en UTC y se
+    // convierte a UTC-6. (Windows: "Central Standard Time"; Linux:
+    // "America/Mexico_City".) Lo guardado no cambia: FechaPago sigue
+    // en UTC y la app lo muestra con ToLocalTime().
+    private static readonly TimeZoneInfo ZonaMexico = TimeZoneInfo.FindSystemTimeZoneById(
+        OperatingSystem.IsWindows() ? "Central Standard Time" : "America/Mexico_City");
+
+    private static DateTime HoyEnMexico() =>
+        TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ZonaMexico).Date;
+
     private readonly ConsultorioDbContext _db;
     public CitasController(ConsultorioDbContext db) => _db = db;
 
@@ -35,7 +52,8 @@ public class CitasController : ControllerBase
         c.Estado,
         c.CitaTratamientos.FirstOrDefault()?.Tratamiento.Nombre ?? c.Motivo ?? string.Empty,
         c.Motivo,
-        c.Notas);
+        c.Notas,
+        c.CitaTratamientos.FirstOrDefault()?.TratamientoId);
 
     private IQueryable<Cita> QueryBase() => _db.Citas
         .Include(c => c.Paciente)
@@ -61,7 +79,7 @@ public class CitasController : ControllerBase
      [HttpGet("hoy")]
     public async Task<ActionResult<IEnumerable<CitaDto>>> GetHoy()
     {
-        var hoy = DateTime.Today;
+        var hoy = HoyEnMexico();
         var citas = await QueryBase()
             .Where(c => c.FechaHora.Date == hoy)
             .OrderBy(c => c.FechaHora)
@@ -92,6 +110,87 @@ public class CitasController : ControllerBase
 
         var actualizada = await QueryBase().FirstAsync(c => c.CitaId == id);
         return Ok(ToDto(actualizada));
+    }
+
+    // PUT /api/citas/{id} — edita paciente, dentista, fecha/hora,
+    // duración, estado, motivo y notas. Mismas validaciones que al
+    // crear. Si viene TratamientoId, se reemplaza el tratamiento de
+    // la cita por ese (al precio del catálogo en ese momento); si no
+    // viene, el tratamiento queda como estaba.
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<CitaDto>> Put(int id, ActualizarCitaDto dto)
+    {
+        if (!await _db.Pacientes.AnyAsync(p => p.PacienteId == dto.PacienteId && p.Activo))
+            return BadRequest($"No existe el paciente {dto.PacienteId}.");
+
+        if (!await _db.Dentistas.AnyAsync(d => d.DentistaId == dto.DentistaId && d.Activo))
+            return BadRequest($"No existe el dentista {dto.DentistaId}.");
+
+        if (!EstadosValidos.Contains(dto.Estado))
+            return BadRequest($"Estado no válido. Usa: {string.Join(", ", EstadosValidos)}.");
+
+        if (dto.DuracionMinutos <= 0)
+            return BadRequest("DuracionMinutos debe ser mayor que 0.");
+
+        Tratamiento? tratamiento = null;
+        if (dto.TratamientoId.HasValue)
+        {
+            tratamiento = await _db.Tratamientos.FindAsync(dto.TratamientoId.Value);
+            if (tratamiento is null)
+                return BadRequest($"No existe el tratamiento {dto.TratamientoId}.");
+        }
+
+        var cita = await _db.Citas
+            .Include(c => c.CitaTratamientos)
+            .FirstOrDefaultAsync(c => c.CitaId == id);
+        if (cita is null)
+            return NotFound();
+
+        cita.PacienteId = dto.PacienteId;
+        cita.DentistaId = dto.DentistaId;
+        cita.FechaHora = dto.FechaHora;
+        cita.DuracionMinutos = dto.DuracionMinutos;
+        cita.Estado = dto.Estado;
+        cita.Motivo = dto.Motivo;
+        cita.Notas = dto.Notas;
+
+        if (tratamiento is not null)
+        {
+            _db.CitaTratamientos.RemoveRange(cita.CitaTratamientos);
+            _db.CitaTratamientos.Add(new CitaTratamiento
+            {
+                CitaId = cita.CitaId,
+                TratamientoId = tratamiento.TratamientoId,
+                Precio = tratamiento.Precio,
+                Cantidad = 1,
+            });
+        }
+
+        await _db.SaveChangesAsync();
+
+        var actualizada = await QueryBase().FirstAsync(c => c.CitaId == id);
+        return Ok(ToDto(actualizada));
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var cita = await _db.Citas
+            .Include(c => c.CitaTratamientos)
+            .FirstOrDefaultAsync(c => c.CitaId == id);
+        if (cita is null)
+            return NotFound();
+
+        // Una cita con pagos no se borra: el pago quedaría huérfano y
+        // el historial de PagosPage perdería su cita. En ese caso se
+        // sugiere cambiar su estado a Cancelada en vez de borrarla.
+        if (await _db.Pagos.AnyAsync(p => p.CitaId == id))
+            return Conflict("No se puede eliminar la cita porque ya tiene pagos registrados. Cambia su estado a Cancelada en su lugar.");
+
+        _db.CitaTratamientos.RemoveRange(cita.CitaTratamientos);
+        _db.Citas.Remove(cita);
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 
     [HttpPost]

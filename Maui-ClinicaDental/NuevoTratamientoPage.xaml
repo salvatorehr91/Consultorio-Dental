@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- NuevoTratamientoPage.xaml — Formulario de tratamiento (.NET MAUI)
+     2026-11-19: antes, crear y editar un tratamiento se hacía con
+     preguntas en pantalla una por una (DisplayPromptAsync): para
+     cambiar un solo campo había que pasar por las 4 preguntas, y si
+     se cancelaba alguna no se guardaba nada, así que parecía que no
+     actualizaba. Ahora es un formulario como el de NuevoPacientePage
+     y NuevoDentistaPage, con todos los campos a la vez en pantalla.
+     La misma página crea y edita: al navegar con ?tratamientoId=1,
+     el formulario se precarga con los datos de ese tratamiento y
+     Guardar hace PUT; sin ese parámetro, crea uno nuevo con POST. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.NuevoTratamientoPage"
+             Title="Nuevo Tratamiento"
+             BackgroundColor="#F4F7F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="14">
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Nuevo tratamiento"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="Nombre, precio y duración son obligatorios. La descripción es opcional."
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Nombre *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Entry Placeholder="Ej.: Limpieza dental"
+                       Text="{Binding Nombre}"
+                       BackgroundColor="White"
+                       TextColor="Black" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Descripción" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Editor Placeholder="Ej.: Limpieza completa con pulido (opcional)"
+                        Text="{Binding Descripcion}"
+                        AutoSize="TextChanges"
+                        BackgroundColor="White"
+                        TextColor="Black" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Precio *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <Entry Placeholder="Ej.: 800"
+                           Keyboard="Numeric"
+                           Text="{Binding PrecioTexto}"
+                           BackgroundColor="White"
+                           TextColor="Black" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Duración (min) *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <Entry Placeholder="Ej.: 45"
+                           Keyboard="Numeric"
+                           Text="{Binding DuracionTexto}"
+                           BackgroundColor="White"
+                           TextColor="Black" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="{Binding MensajeError}"
+                   FontSize="13"
+                   TextColor="#B3261E"
+                   IsVisible="{Binding TieneError}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="1"
+                        Text="Guardar tratamiento"
+                        Command="{Binding GuardarCommand}"
+                        BackgroundColor="#0E7C7B"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

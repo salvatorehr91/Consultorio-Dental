@@ -116,7 +116,9 @@ public class PacientesViewModel : INotifyPropertyChanged
             "Cerrar",
             null,
             "Ver pagos",
-            "Nueva cita");
+            "Nueva cita",
+            "Editar",
+            "Eliminar");
 
         switch (accion)
         {
@@ -128,7 +130,41 @@ public class PacientesViewModel : INotifyPropertyChanged
             case "Nueva cita":
                 await Shell.Current.GoToAsync(nameof(NuevaCitaPage));
                 break;
+            case "Editar":
+                // NuevoPacientePage en modo edición: precarga el
+                // formulario con los datos de este paciente.
+                await Shell.Current.GoToAsync(
+                    $"{nameof(NuevoPacientePage)}?pacienteId={paciente.Id}");
+                break;
+            case "Eliminar":
+                await EliminarPacienteAsync(paciente);
+                break;
         }
+    }
+
+    // Eliminar es una baja lógica en el servidor (Activo = false):
+    // el paciente deja de aparecer en la lista, pero sus citas y
+    // pagos quedan intactos en el historial. Se pide confirmación
+    // porque desde la app no hay forma de reactivarlo.
+    private async Task EliminarPacienteAsync(PacienteItem paciente)
+    {
+        var confirmar = await Shell.Current.DisplayAlertAsync(
+            "Eliminar paciente",
+            $"¿Eliminar a {paciente.NombreCompleto}? Dejará de aparecer en la lista, pero sus citas y pagos se conservan.",
+            "Eliminar", "Cancelar");
+        if (!confirmar) return;
+
+        var (ok, error) = await _api.EliminarPacienteAsync(paciente.Id);
+        if (!ok)
+        {
+            await Shell.Current.DisplayAlertAsync(
+                "No se pudo eliminar", error ?? "El servidor no eliminó el paciente.", "OK");
+            return;
+        }
+
+        await CargarDesdeApiAsync();
+        await Shell.Current.DisplayAlertAsync(
+            "Paciente eliminado", $"{paciente.NombreCompleto} ya no aparece en la lista.", "OK");
     }
 
     private void OnPropertyChanged([CallerMemberName] string? nombre = null)

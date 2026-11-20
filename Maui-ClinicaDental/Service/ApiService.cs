@@ -35,9 +35,16 @@ namespace Maui_ClinicaDental.Service
                     return BaseUrlOverride.TrimEnd('/') + "/";
 
 #if ANDROID
-                return "https://10.0.2.3:5000/";
+                // CORRECCIÓN 2026-11-18: antes decía https://10.0.2.3:5000/
+                // (10.0.2.3 es el gateway, no tu PC, y https con el
+                // certificado de desarrollo no lo acepta Android).
+                // Emulador: 10.0.2.2 es el alias del localhost de tu PC,
+                // en HTTP. El API debe correr en http://0.0.0.0:5000.
+                // Dispositivo físico: cambia 10.0.2.2 por la IP LAN de
+                // tu PC, p. ej. http://192.168.1.50:5000/
+                return "http://10.0.0.0:5000/";
 #else
-            return "https://localhost:65350/";
+            return "http://localhost:65351/";
 #endif
             }
         }
@@ -89,6 +96,64 @@ namespace Maui_ClinicaDental.Service
         // GET /api/tratamientos
         public async Task<List<TratamientoDto>?> GetTratamientosAsync()
             => await GetAsync<List<TratamientoDto>>("tratamientos");
+
+        // GET /api/pacientes/{id} — para precargar el formulario de edición.
+        public async Task<PacienteDto?> GetPacienteAsync(int id)
+            => await GetAsync<PacienteDto>($"pacientes/{id}");
+
+        // GET /api/citas/{id} — para precargar el formulario de edición.
+        public async Task<CitaDto?> GetCitaAsync(int id)
+            => await GetAsync<CitaDto>($"citas/{id}");
+
+        // GET /api/dentistas/{id} y GET /api/tratamientos/{id}.
+        public async Task<DentistaDto?> GetDentistaAsync(int id)
+            => await GetAsync<DentistaDto>($"dentistas/{id}");
+
+        public async Task<TratamientoDto?> GetTratamientoAsync(int id)
+            => await GetAsync<TratamientoDto>($"tratamientos/{id}");
+
+        // POST /api/dentistas y POST /api/tratamientos.
+        // CrearDentistaRequest / CrearTratamientoRequest son los mismos
+        // records que Actualizar*Request: el servidor usa los mismos
+        // campos para crear y para editar, así que se reutilizan.
+        public async Task<(bool Ok, string? Error)> CrearDentistaAsync(ActualizarDentistaRequest request)
+            => await PostAsync("dentistas", request);
+
+        public async Task<(bool Ok, string? Error)> CrearTratamientoAsync(ActualizarTratamientoRequest request)
+            => await PostAsync("tratamientos", request);
+
+        // PUT /api/pacientes/{id}, PUT /api/dentistas/{id},
+        // PUT /api/tratamientos/{id} y PUT /api/citas/{id}.
+        public async Task<(bool Ok, string? Error)> ActualizarPacienteAsync(int id, ActualizarPacienteRequest request)
+            => await PutAsync($"pacientes/{id}", request);
+
+        public async Task<(bool Ok, string? Error)> ActualizarDentistaAsync(int id, ActualizarDentistaRequest request)
+            => await PutAsync($"dentistas/{id}", request);
+
+        public async Task<(bool Ok, string? Error)> ActualizarTratamientoAsync(int id, ActualizarTratamientoRequest request)
+            => await PutAsync($"tratamientos/{id}", request);
+
+        public async Task<(bool Ok, string? Error)> ActualizarCitaAsync(int id, ActualizarCitaRequest request)
+            => await PutAsync($"citas/{id}", request);
+
+        // DELETE /api/pacientes/{id} — baja lógica en el servidor
+        // (Activo = false); la fila y su historial quedan intactos.
+        public async Task<(bool Ok, string? Error)> EliminarPacienteAsync(int id)
+            => await DeleteAsync($"pacientes/{id}");
+
+        // DELETE /api/dentistas/{id} y DELETE /api/tratamientos/{id}:
+        // también baja lógica (Activo = false).
+        public async Task<(bool Ok, string? Error)> EliminarDentistaAsync(int id)
+            => await DeleteAsync($"dentistas/{id}");
+
+        public async Task<(bool Ok, string? Error)> EliminarTratamientoAsync(int id)
+            => await DeleteAsync($"tratamientos/{id}");
+
+        // DELETE /api/citas/{id} — borrado real. Si la cita tiene
+        // pagos, el servidor devuelve 409 y el mensaje explica que
+        // hay que cancelarla en vez de borrarla.
+        public async Task<(bool Ok, string? Error)> EliminarCitaAsync(int id)
+            => await DeleteAsync($"citas/{id}");
 
         // POST /api/citas — devuelve (true, null) si el servidor la creó
         // (201 Created) o (false, motivo) si no.
@@ -183,6 +248,33 @@ namespace Maui_ClinicaDental.Service
 
                 var detalle = await respuesta.Content.ReadAsStringAsync();
                 return (false, $"El servidor no actualizó el registro ({(int)respuesta.StatusCode}). {detalle}".Trim());
+            }
+            catch (HttpRequestException ex)
+            {
+                return (false, $"No se pudo conectar con el API. Revisa que esté corriendo. Detalle: {ex.Message}");
+            }
+            catch (TaskCanceledException)
+            {
+                return (false, "El API tardó demasiado en responder (timeout de 10 s).");
+            }
+        }
+
+        // DELETE — sin cuerpo. El servidor devuelve 204 (sin contenido)
+        // al borrar/dar de baja, y 409 con el motivo si no se puede
+        // (una cita con pagos). El detalle se devuelve tal cual para
+        // mostrarlo en la alerta, sin el código entre paréntesis.
+        private async Task<(bool Ok, string? Error)> DeleteAsync(string url)
+        {
+            try
+            {
+                var respuesta = await _http.DeleteAsync(url);
+                if (respuesta.IsSuccessStatusCode)
+                    return (true, null);
+
+                var detalle = (await respuesta.Content.ReadAsStringAsync()).Trim().Trim('"');
+                return (false, string.IsNullOrWhiteSpace(detalle)
+                    ? $"El servidor no eliminó el registro ({(int)respuesta.StatusCode})."
+                    : detalle);
             }
             catch (HttpRequestException ex)
             {

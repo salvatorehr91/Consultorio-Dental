@@ -3,6 +3,10 @@
 // GET    /api/pacientes/count         — total (lo usa el resumen de MainPage)
 // GET    /api/pacientes/{id}
 // POST   /api/pacientes              — crea (201 Created)
+// PUT    /api/pacientes/{id}         — edita (200 con el paciente)
+// DELETE /api/pacientes/{id}         — baja lógica (Activo = false, 204).
+//        No se borra la fila: sus citas y pagos quedan intactos en
+//        el historial. La lista (GET) solo muestra los activos.
 
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
@@ -75,5 +79,38 @@ public class PacientesController : ControllerBase
         await _db.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetById), new { id = paciente.PacienteId }, ToDto(paciente));
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<PacienteDto>> Put(int id, ActualizarPacienteDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Apellido))
+            return BadRequest("Nombre y Apellido son obligatorios.");
+
+        var paciente = await _db.Pacientes.FindAsync(id);
+        if (paciente is null)
+            return NotFound();
+
+        paciente.Nombre = dto.Nombre.Trim();
+        paciente.Apellido = dto.Apellido.Trim();
+        paciente.FechaNacimiento = dto.FechaNacimiento;
+        paciente.Telefono = dto.Telefono;
+        paciente.Email = dto.Email;
+        paciente.Direccion = dto.Direccion;
+
+        await _db.SaveChangesAsync();
+        return Ok(ToDto(paciente));
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var paciente = await _db.Pacientes.FindAsync(id);
+        if (paciente is null || !paciente.Activo)
+            return NotFound();
+
+        paciente.Activo = false;
+        await _db.SaveChangesAsync();
+        return NoContent();
     }
 }

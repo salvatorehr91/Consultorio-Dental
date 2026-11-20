@@ -19,12 +19,18 @@
         // CORRECCIÓN 2026-11-14: faltaba el id del paciente. Sin él,
         // "Ver pagos" desde Citas solo podía mandar el nombre.
         public int PacienteId { get; init; }
+        // 2026-11-19 (editar cita): faltaban el id del dentista, el id
+        // del tratamiento y el motivo, que el formulario de edición
+        // necesita para precargar los pickers. Vienen del API en CitaDto.
+        public int DentistaId { get; init; }
+        public int? TratamientoId { get; init; }
         public DateTime FechaHora { get; init; }
         public int DuracionMinutos { get; init; }
         public string PacienteNombre { get; init; } = string.Empty;
         public string Tratamiento { get; init; } = string.Empty;
         public string DentistaNombre { get; init; } = string.Empty;
         public string Estado { get; init; } = "Programada";
+        public string? Motivo { get; init; }
         public string? Notas { get; init; }
 
         public string Hora => FechaHora.ToString("HH:mm");

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:maui_clinicadental="clr-namespace:Maui_ClinicaDental" x:DataType="maui_clinicadental:NuevaCitaViewModel"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:maui_clinicadental="clr-namespace:Maui_ClinicaDental" x:DataType="maui_clinicadental:MainPageViewModel"
              Title="Consultorio Dental"
              x:Class="Maui_ClinicaDental.MainPage"
              BackgroundColor="#F4F7F9">
@@ -30,6 +30,19 @@
                            HorizontalOptions="Center" />
                 </Border>
             </Grid>
+
+            <!-- 2026-11-19: el aviso del API no se veía porque no existía
+                 ningún Label enlazado a AvisoApi en esta página. El
+                 ViewModel sí lo actualizaba (con OnPropertyChanged y
+                 TieneAvisoApi), pero nada en pantalla lo mostraba. Este
+                 Label es el mismo estilo amarillo que en CitasPage: solo
+                 aparece cuando el API no responde. -->
+            <Label Text="{Binding AvisoApi}"
+                   IsVisible="{Binding TieneAvisoApi}"
+                   FontSize="12"
+                   TextColor="#8A6D00"
+                   BackgroundColor="#FFF3CD"
+                   Padding="10,6" />
 
             <!-- Buscador -->
             <SearchBar Placeholder="Buscar paciente por nombre o teléfono…"
@@ -78,6 +91,27 @@
                 <Button Grid.Column="2"
                         Text="Pacientes"
                         Command="{Binding VerPacientesCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+            </Grid>
+
+            <!-- Catálogos — 2026-11-19: administrar dentistas y tratamientos -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Dentistas"
+                        Command="{Binding VerDentistasCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="1"
+                        Text="Tratamientos"
+                        Command="{Binding VerTratamientosCommand}"
                         BackgroundColor="White"
                         TextColor="#0F3556"
                         BorderColor="#D6DEE5"
