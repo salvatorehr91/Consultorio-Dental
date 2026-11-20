@@ -1,11 +1,11 @@
-﻿using Maui_ClinicaDental.Models;
+using Maui_ClinicaDental.Models;
 using Maui_ClinicaDental.Service;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental
+namespace Maui_ClinicaDental.Pages
 {
     public partial class MainPage : ContentPage
     {

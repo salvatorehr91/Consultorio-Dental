@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 // NuevoDentistaPage — formulario de dentista, con todos los campos
 // a la vez en pantalla (2026-11-19: antes eran preguntas en pantalla

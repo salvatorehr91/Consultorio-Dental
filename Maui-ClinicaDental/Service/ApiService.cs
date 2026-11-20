@@ -1,4 +1,4 @@
-﻿// ApiService.cs — Consumo del API REST desde .NET MAUI
+// ApiService.cs — Consumo del API REST desde .NET MAUI
 // Un solo HttpClient para toda la app. Los ViewModels ya no crean
 // su propio HttpClient ni guardan su propia ApiBaseUrl.
 //
@@ -42,9 +42,9 @@ namespace Maui_ClinicaDental.Service
                 // en HTTP. El API debe correr en http://0.0.0.0:5000.
                 // Dispositivo físico: cambia 10.0.2.2 por la IP LAN de
                 // tu PC, p. ej. http://192.168.1.50:5000/
-                return "http://10.0.0.0:5000/";
+                return "http://10.0.2.2:5000/";
 #else
-            return "http://localhost:65351/";
+            return "https://localhost:65350/";
 #endif
             }
         }
@@ -191,6 +191,33 @@ namespace Maui_ClinicaDental.Service
         // PUT /api/citas/{id}/estado — cambia solo el Estado.
         public async Task<(bool Ok, string? Error)> CambiarEstadoCitaAsync(int citaId, string estado)
             => await PutAsync($"citas/{citaId}/estado", new CambiarEstadoRequest(estado));
+
+        // Reportes (2026-11-19). Desde/Hasta van como yyyy-MM-dd
+        // (fecha local del consultorio); si no se pasan, el servidor
+        // usa el mes en curso.
+        public async Task<ResumenReporteDto?> GetResumenReportesAsync(DateTime? desde = null, DateTime? hasta = null)
+            => await GetAsync<ResumenReporteDto>(ReporteUrl("reportes/resumen", desde, hasta));
+
+        public async Task<List<CobroPorDiaDto>?> GetCobrosPorDiaAsync(DateTime? desde = null, DateTime? hasta = null)
+            => await GetAsync<List<CobroPorDiaDto>>(ReporteUrl("reportes/cobros-por-dia", desde, hasta));
+
+        public async Task<List<TratamientoUsoDto>?> GetTratamientosMasUsadosAsync(DateTime? desde = null, DateTime? hasta = null, int top = 10)
+        {
+            var url = ReporteUrl("reportes/tratamientos-mas-usados", desde, hasta);
+            url += (url.Contains('?') ? "&" : "?") + $"top={top}";
+            return await GetAsync<List<TratamientoUsoDto>>(url);
+        }
+
+        public async Task<List<CitasPorDentistaDto>?> GetCitasPorDentistaAsync(DateTime? desde = null, DateTime? hasta = null)
+            => await GetAsync<List<CitasPorDentistaDto>>(ReporteUrl("reportes/citas-por-dentista", desde, hasta));
+
+        private static string ReporteUrl(string ruta, DateTime? desde, DateTime? hasta)
+        {
+            var query = new List<string>();
+            if (desde.HasValue) query.Add($"desde={desde.Value:yyyy-MM-dd}");
+            if (hasta.HasValue) query.Add($"hasta={hasta.Value:yyyy-MM-dd}");
+            return query.Count == 0 ? ruta : ruta + "?" + string.Join("&", query);
+        }
 
         private async Task<T?> GetAsync<T>(string url)
         {

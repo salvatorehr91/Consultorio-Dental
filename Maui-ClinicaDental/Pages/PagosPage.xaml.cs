@@ -18,7 +18,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 [QueryProperty(nameof(CitaIdQuery), "citaId")]
 [QueryProperty(nameof(PacienteIdQuery), "pacienteId")]

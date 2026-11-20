@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using static Maui_ClinicaDental.Models.ApiModelExtensions;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 public partial class CitasPage : ContentPage
 {

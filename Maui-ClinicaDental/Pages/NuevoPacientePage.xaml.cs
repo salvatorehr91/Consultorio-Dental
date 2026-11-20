@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 // 2026-11-19 (editar): la misma página crea y edita. Al navegar
 // con ?pacienteId=1, Shell asigna PacienteIdQuery antes de
