@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 // NuevoTratamientoPage — formulario de tratamiento, con todos los
 // campos a la vez en pantalla (2026-11-19: antes eran preguntas en

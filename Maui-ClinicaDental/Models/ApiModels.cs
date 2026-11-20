@@ -1,4 +1,4 @@
-﻿// ApiModels.cs — DTOs que devuelve el API REST (.NET MAUI)
+// ApiModels.cs — DTOs que devuelve el API REST (.NET MAUI)
 // Contratos JSON (camelCase, como los emite ASP.NET Core por defecto).
 // Coinciden con ConsultorioDental.Api/Dtos.cs del lado del servidor
 // y con las tablas dbo.Pacientes, dbo.Dentistas, dbo.Tratamientos,
@@ -223,3 +223,36 @@ public static class ApiModelExtensions
     public static OpcionPersona ToOpcionPersona(this DentistaDto d) => new(d.DentistaId, d.NombreCompleto);
     public static OpcionTratamiento ToOpcionTratamiento(this TratamientoDto t) => new(t.TratamientoId, t.Nombre, t.Precio, t.DuracionMinutos);
 }
+
+// Reportes (2026-11-19): lo que devuelve ReportesController.
+// Los nombres JSON coinciden con los records del servidor (camelCase
+// por defecto en ASP.NET Core). TotalCobrado solo suma pagos con
+// Estado "Pagado".
+public record EstadoCantidadDto(
+    [property: JsonPropertyName("estado")] string Estado,
+    [property: JsonPropertyName("cantidad")] int Cantidad);
+
+public record ResumenReporteDto(
+    [property: JsonPropertyName("totalCobrado")] decimal TotalCobrado,
+    [property: JsonPropertyName("cantidadPagos")] int CantidadPagos,
+    [property: JsonPropertyName("promedioPorPago")] decimal PromedioPorPago,
+    [property: JsonPropertyName("totalCitas")] int TotalCitas,
+    [property: JsonPropertyName("citasPorEstado")] List<EstadoCantidadDto> CitasPorEstado);
+
+public record CobroPorDiaDto(
+    [property: JsonPropertyName("fecha")] DateTime Fecha,
+    [property: JsonPropertyName("total")] decimal Total,
+    [property: JsonPropertyName("cantidadPagos")] int CantidadPagos);
+
+public record TratamientoUsoDto(
+    [property: JsonPropertyName("tratamientoId")] int TratamientoId,
+    [property: JsonPropertyName("nombre")] string Nombre,
+    [property: JsonPropertyName("veces")] int Veces,
+    [property: JsonPropertyName("totalCobrado")] decimal TotalCobrado);
+
+public record CitasPorDentistaDto(
+    [property: JsonPropertyName("dentistaId")] int DentistaId,
+    [property: JsonPropertyName("dentistaNombre")] string DentistaNombre,
+    [property: JsonPropertyName("totalCitas")] int TotalCitas,
+    [property: JsonPropertyName("completadas")] int Completadas,
+    [property: JsonPropertyName("canceladas")] int Canceladas);

@@ -10,7 +10,7 @@
      encabezado quedan fijos arriba, en filas Auto. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maui_ClinicaDental.CitasPage"
+             x:Class="Maui_ClinicaDental.Pages.CitasPage"
              Title="CitasPage"
              BackgroundColor="#F4F7F9">
 

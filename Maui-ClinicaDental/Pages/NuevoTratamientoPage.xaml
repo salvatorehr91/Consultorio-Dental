@@ -11,7 +11,7 @@
      Guardar hace PUT; sin ese parámetro, crea uno nuevo con POST. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maui_ClinicaDental.NuevoTratamientoPage"
+             x:Class="Maui_ClinicaDental.Pages.NuevoTratamientoPage"
              Title="Nuevo Tratamiento"
              BackgroundColor="#F4F7F9">
 

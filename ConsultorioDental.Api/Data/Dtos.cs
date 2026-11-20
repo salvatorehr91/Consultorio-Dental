@@ -28,10 +28,18 @@ public record CambiarEstadoDto(string Estado);
 // Lo que la app envía al editar (PUT /api/{entidad}/{id}).
 // Tienen los mismos campos que los Crear*, para que el formulario
 // de edición reutilice las mismas validaciones del servidor.
-// En ActualizarCitaDto, TratamientoId es opcional: si viene, se
-// reemplaza el tratamiento de la cita por ese (al precio del
-// catálogo en ese momento); si no viene, el tratamiento queda igual.
 public record ActualizarPacienteDto(string Nombre, string Apellido, DateTime? FechaNacimiento, string? Telefono, string? Email, string? Direccion);
 public record ActualizarDentistaDto(string Nombre, string Apellido, string Especialidad, string? Telefono, string? Email);
 public record ActualizarTratamientoDto(string Nombre, string? Descripcion, decimal Precio, int DuracionMinutos);
+// En ActualizarCitaDto, TratamientoId es opcional: si viene, se
+// reemplaza el tratamiento de la cita por ese (al precio del
+// catálogo en ese momento); si no viene, el tratamiento queda igual.
 public record ActualizarCitaDto(int PacienteId, int DentistaId, DateTime FechaHora, int DuracionMinutos, string Estado, string? Motivo, string? Notas, int? TratamientoId);
+
+
+// Estado y reporte de citas y pagos, para los endpoints de ReportesController.
+public record EstadoCantidadDto(string Estado, int Cantidad);
+public record ResumenReporteDto(decimal TotalCobrado, int CantidadPagos, decimal PromedioPorPago, int TotalCitas, List<EstadoCantidadDto> CitasPorEstado);
+public record CobroPorDiaDto(DateTime Fecha, decimal Total, int CantidadPagos);
+public record TratamientoUsoDto(int TratamientoId, string Nombre, int Veces, decimal TotalCobrado);
+public record CitasPorDentistaDto(int DentistaId, string DentistaNombre, int TotalCitas, int Completadas, int Canceladas);

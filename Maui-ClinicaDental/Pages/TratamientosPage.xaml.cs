@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 // TratamientosPage — administrar el catálogo de tratamientos.
 // Crear y editar abren NuevoTratamientoPage, un formulario con todos

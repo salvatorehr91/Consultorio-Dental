@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- NuevoDentistaPage.xaml — Formulario de dentista (.NET MAUI)
+     2026-11-19: antes, crear y editar un dentista se hacía con
+     preguntas en pantalla una por una (DisplayPromptAsync): para
+     cambiar un solo campo había que pasar por las 5 preguntas.
+     Ahora es un formulario como el de NuevoPacientePage, con todos
+     los campos a la vez en pantalla. La misma página crea y edita:
+     al navegar con ?dentistaId=1, el formulario se precarga con los
+     datos de ese dentista y Guardar hace PUT; sin ese parámetro,
+     crea uno nuevo con POST. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maui_ClinicaDental.NuevoPacientePage"
-             Title="Nuevo Paciente"
+             x:Class="Maui_ClinicaDental.Pages.NuevoDentistaPage"
+             Title="Nuevo Dentista"
              BackgroundColor="#F4F7F9">
 
     <ScrollView>
         <VerticalStackLayout Padding="20,16" Spacing="14">
 
             <VerticalStackLayout Spacing="2">
-                <Label Text="Nuevo paciente"
+                <Label Text="Nuevo dentista"
                        FontSize="26"
                        FontAttributes="Bold"
                        TextColor="#0F3556" />
-                <Label Text="Nombre y apellido son obligatorios. El resto es opcional."
+                <Label Text="Nombre, apellido y especialidad son obligatorios. El resto es opcional."
                        FontSize="14"
                        TextColor="#5A6B7A" />
             </VerticalStackLayout>
@@ -21,14 +30,14 @@
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <VerticalStackLayout Spacing="4">
                     <Label Text="Nombre *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                    <Entry Placeholder="Ej.: María"
+                    <Entry Placeholder="Ej.: Ana"
                            Text="{Binding Nombre}"
-                           BackgroundColor="White" 
+                           BackgroundColor="White"
                            TextColor="Black" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1" Spacing="4">
                     <Label Text="Apellido *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                    <Entry Placeholder="Ej.: López"
+                    <Entry Placeholder="Ej.: Pérez"
                            Text="{Binding Apellido}"
                            BackgroundColor="White"
                            TextColor="Black" />
@@ -36,37 +45,29 @@
             </Grid>
 
             <VerticalStackLayout Spacing="4">
-                <Label Text="Fecha de nacimiento" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                <DatePicker Date="{Binding FechaNacimiento}"
-                            BackgroundColor="White" 
-                            TextColor="Black" />
+                <Label Text="Especialidad *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Entry Placeholder="Ej.: General"
+                       Text="{Binding Especialidad}"
+                       BackgroundColor="White"
+                       TextColor="Black" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="4">
                 <Label Text="Teléfono" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                <Entry Placeholder="Ej.: 555-1001"
+                <Entry Placeholder="Ej.: 555-0101"
                        Keyboard="Telephone"
                        Text="{Binding Telefono}"
-                       BackgroundColor="White" 
+                       BackgroundColor="White"
                        TextColor="Black" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="4">
                 <Label Text="Email" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                <Entry Placeholder="Ej.: maria@test.com"
+                <Entry Placeholder="Ej.: ana@test.com"
                        Keyboard="Email"
                        Text="{Binding Email}"
-                       BackgroundColor="White" 
+                       BackgroundColor="White"
                        TextColor="Black" />
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="4">
-                <Label Text="Dirección" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
-                <Editor Placeholder="Calle, número, colonia (opcional)"
-                        Text="{Binding Direccion}"
-                        AutoSize="TextChanges"
-                        BackgroundColor="White" 
-                        TextColor="Black" />
             </VerticalStackLayout>
 
             <Label Text="{Binding MensajeError}"
@@ -84,7 +85,7 @@
                         CornerRadius="10"
                         HeightRequest="48" />
                 <Button Grid.Column="1"
-                        Text="Guardar paciente"
+                        Text="Guardar dentista"
                         Command="{Binding GuardarCommand}"
                         BackgroundColor="#0E7C7B"
                         TextColor="White"
@@ -94,5 +95,5 @@
 
         </VerticalStackLayout>
     </ScrollView>
-    
+
 </ContentPage>

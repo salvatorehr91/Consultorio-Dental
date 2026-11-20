@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 [QueryProperty(nameof(Buscar), "buscar")]
 public partial class PacientesPage : ContentPage

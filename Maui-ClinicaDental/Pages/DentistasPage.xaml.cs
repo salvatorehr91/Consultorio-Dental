@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
-namespace Maui_ClinicaDental;
+namespace Maui_ClinicaDental.Pages;
 
 // DentistasPage — administrar el catálogo de dentistas.
 // Crear y editar abren NuevoDentistaPage, un formulario con todos
