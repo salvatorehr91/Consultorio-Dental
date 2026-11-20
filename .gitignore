@@ -8,7 +8,4 @@
 /ConsultorioDental.Api/Program.cs
 /ConsultorioDental.Api/appsettings.Staging.json
 /ConsultorioDental.Api/appsettings.Production.json
-/ConsultorioDental.Api/appsettings.Development.example.json
-/ConsultorioDental.Api/appsettings.Staging.example.json
-
 /ConsultorioDental.Api/appsettings.Development.json
