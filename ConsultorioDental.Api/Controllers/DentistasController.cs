@@ -11,6 +11,7 @@
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
 using ConsultorioDental.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ namespace ConsultorioDental.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class DentistasController : ControllerBase
 {
     private readonly ConsultorioDbContext _db;
@@ -85,6 +87,7 @@ public class DentistasController : ControllerBase
         return Ok(ToDto(dentista));
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

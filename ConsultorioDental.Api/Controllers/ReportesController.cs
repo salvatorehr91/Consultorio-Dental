@@ -1,15 +1,15 @@
 // Controllers/ReportesController.cs — Reportes del consultorio
-// GET    /api/reportes/resumen?desde=2026-11-01&hasta=2026-11-30
+// GET    /reportes/resumen?desde=2026-11-01&hasta=2026-11-30
 //        — total cobrado, cantidad de pagos, promedio por pago,
 //        total de citas y citas por estado en el período.
-// GET    /api/reportes/cobros-por-dia?desde=&hasta=
+// GET    /reportes/cobros-por-dia?desde=&hasta=
 //        — total cobrado y cantidad de pagos por día (incluye los
 //        días sin cobros, en 0, para que la serie se lea completa).
-// GET    /api/reportes/tratamientos-mas-usados?desde=&hasta=&top=10
+// GET    /reportes/tratamientos-mas-usados?desde=&hasta=&top=10
 //        — tratamientos ordenados por veces realizados, con el total
 //        cobrado por cada uno (precio de CitaTratamientos, el que se
 //        cobró en su momento, no el precio actual del catálogo).
-// GET    /api/reportes/citas-por-dentista?desde=&hasta=
+// GET    /reportes/citas-por-dentista?desde=&hasta=
 //        — citas por dentista en el período, con completadas y
 //        canceladas.
 //
@@ -25,13 +25,15 @@
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
 using ConsultorioDental.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConsultorioDental.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
+[Authorize]
 public class ReportesController : ControllerBase
 {
     private readonly ConsultorioDbContext _db;
@@ -103,11 +105,18 @@ public class ReportesController : ControllerBase
         var pagados = pagos.Where(p => p.Estado == "Pagado").ToList();
         var totalCobrado = pagados.Sum(p => p.Monto);
 
-        var citasPorEstado = await CitasEnPeriodo(d, h)
-            .GroupBy(c => c.Estado)
+        // 2026-11-20: las citas se traen planas (solo el Estado) y
+        // se agrupan en memoria. El GroupBy en el servidor no se
+        // tradujo en este EF Core (InvalidOperationException), y son
+        // pocas filas en un período, así que no pesa.
+        var estados = await CitasEnPeriodo(d, h)
+            .Select(c => c.Estado)
+            .ToListAsync();
+        var citasPorEstado = estados
+            .GroupBy(e => e)
             .Select(g => new EstadoCantidadDto(g.Key, g.Count()))
             .OrderByDescending(e => e.Cantidad)
-            .ToListAsync();
+            .ToList();
         var totalCitas = citasPorEstado.Sum(e => e.Cantidad);
 
         return Ok(new ResumenReporteDto(
@@ -150,20 +159,24 @@ public class ReportesController : ControllerBase
         if (top < 1) top = 1;
         if (top > 50) top = 50;
 
-        var usos = await _db.CitaTratamientos
-            .Include(ct => ct.Cita)
-            .Include(ct => ct.Tratamiento)
+        // 2026-11-20: igual que Resumen, la agrupación se hace en
+        // memoria: el GroupBy con Include no se tradujo en el
+        // servidor. Se trae solo lo necesario (sin Include).
+        var filas = await _db.CitaTratamientos
             .Where(ct => ct.Cita.FechaHora >= d && ct.Cita.FechaHora < h.AddDays(1))
-            .GroupBy(ct => new { ct.TratamientoId, ct.Tratamiento.Nombre })
+            .Select(ct => new { ct.TratamientoId, Nombre = ct.Tratamiento.Nombre, ct.Cantidad, ct.Precio })
+            .ToListAsync();
+        var usos = filas
+            .GroupBy(x => new { x.TratamientoId, x.Nombre })
             .Select(g => new TratamientoUsoDto(
                 g.Key.TratamientoId,
                 g.Key.Nombre,
-                g.Sum(ct => ct.Cantidad),
-                g.Sum(ct => ct.Precio * ct.Cantidad)))
+                g.Sum(x => x.Cantidad),
+                g.Sum(x => x.Precio * x.Cantidad)))
             .OrderByDescending(t => t.Veces)
             .ThenByDescending(t => t.TotalCobrado)
             .Take(top)
-            .ToListAsync();
+            .ToList();
         return Ok(usos);
     }
 
@@ -174,17 +187,22 @@ public class ReportesController : ControllerBase
         var error = ValidarPeriodo(d, h);
         if (error is not null) return error;
 
-        var porDentista = await CitasEnPeriodo(d, h)
-            .Include(c => c.Dentista)
-            .GroupBy(c => new { c.DentistaId, Nombre = c.Dentista.Nombre + " " + c.Dentista.Apellido })
+        // 2026-11-20: agrupación en memoria, igual que los otros
+        // dos endpoints. La proyección con el nombre del dentista
+        // sí se traduce (es un JOIN), pero el GroupBy no.
+        var filas = await CitasEnPeriodo(d, h)
+            .Select(c => new { c.DentistaId, Nombre = c.Dentista.Nombre + " " + c.Dentista.Apellido, c.Estado })
+            .ToListAsync();
+        var porDentista = filas
+            .GroupBy(x => new { x.DentistaId, x.Nombre })
             .Select(g => new CitasPorDentistaDto(
                 g.Key.DentistaId,
                 g.Key.Nombre.Trim(),
                 g.Count(),
-                g.Count(c => c.Estado == "Completada"),
-                g.Count(c => c.Estado == "Cancelada")))
+                g.Count(x => x.Estado == "Completada"),
+                g.Count(x => x.Estado == "Cancelada")))
             .OrderByDescending(x => x.TotalCitas)
-            .ToListAsync();
+            .ToList();
         return Ok(porDentista);
     }
 }

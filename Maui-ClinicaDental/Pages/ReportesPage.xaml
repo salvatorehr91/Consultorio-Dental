@@ -5,7 +5,12 @@
      Las listas usan BindableLayout dentro del ScrollView, no
      CollectionView: son listas cortas (días del mes, tratamientos,
      dentistas) y así la página entera se desplaza sin el problema
-     de altura infinita que tenían CitasPage y PagosPage. -->
+     de altura infinita que tenían CitasPage y PagosPage.
+     2026-11-20: las columnas numéricas tienen ancho FIJO (no Auto):
+     cada renglón es un Grid distinto y con Auto cada uno medía sus
+     columnas por su cuenta, así que las cantidades se amontonaban
+     sin alinearse con el encabezado. Con ancho fijo y números
+     alineados a la derecha, encabezado y renglones coinciden. -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Maui_ClinicaDental.Models"
@@ -92,18 +97,19 @@
             <Label Text="Cobros por día" FontSize="18" FontAttributes="Bold" TextColor="#0F3556" />
             <Border Padding="14,12" BackgroundColor="White">
                 <VerticalStackLayout Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="*,70,90" ColumnSpacing="12">
                         <Label Text="Fecha" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="1" Text="Pagos" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="2" Text="Total" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
+                        <Label Grid.Column="1" Text="Pagos" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="2" Text="Total" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
                     </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#D6DEE5" />
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding CobrosPorDia}" Spacing="6">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:CobroPorDiaDto">
-                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="*,70,90" ColumnSpacing="12">
                                     <Label Text="{Binding Fecha, StringFormat='{0:dd MMM yyyy}'}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="1" Text="{Binding CantidadPagos}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="2" Text="{Binding Total, StringFormat='${0:0.00}'}" FontSize="14" TextColor="#1A2B3C" />
+                                    <Label Grid.Column="1" Text="{Binding CantidadPagos}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
+                                    <Label Grid.Column="2" Text="{Binding Total, StringFormat='${0:0.00}'}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -119,18 +125,19 @@
             <Label Text="Tratamientos más usados" FontSize="18" FontAttributes="Bold" TextColor="#0F3556" />
             <Border Padding="14,12" BackgroundColor="White">
                 <VerticalStackLayout Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="*,60,90" ColumnSpacing="12">
                         <Label Text="Tratamiento" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="1" Text="Veces" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="2" Text="Total" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
+                        <Label Grid.Column="1" Text="Veces" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="2" Text="Total" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
                     </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#D6DEE5" />
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding TratamientosMasUsados}" Spacing="6">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:TratamientoUsoDto">
-                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="*,60,90" ColumnSpacing="12">
                                     <Label Text="{Binding Nombre}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="1" Text="{Binding Veces}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="2" Text="{Binding TotalCobrado, StringFormat='${0:0.00}'}" FontSize="14" TextColor="#1A2B3C" />
+                                    <Label Grid.Column="1" Text="{Binding Veces}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
+                                    <Label Grid.Column="2" Text="{Binding TotalCobrado, StringFormat='${0:0.00}'}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -146,20 +153,21 @@
             <Label Text="Citas por dentista" FontSize="18" FontAttributes="Bold" TextColor="#0F3556" />
             <Border Padding="14,12" BackgroundColor="White">
                 <VerticalStackLayout Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="*,55,95,85" ColumnSpacing="12">
                         <Label Text="Dentista" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="1" Text="Citas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="2" Text="Completadas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
-                        <Label Grid.Column="3" Text="Canceladas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" />
+                        <Label Grid.Column="1" Text="Citas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="2" Text="Completadas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
+                        <Label Grid.Column="3" Text="Canceladas" FontSize="12" FontAttributes="Bold" TextColor="#5A6B7A" HorizontalTextAlignment="End" />
                     </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#D6DEE5" />
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding CitasPorDentista}" Spacing="6">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="models:CitasPorDentistaDto">
-                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="*,55,95,85" ColumnSpacing="12">
                                     <Label Text="{Binding DentistaNombre}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="1" Text="{Binding TotalCitas}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="2" Text="{Binding Completadas}" FontSize="14" TextColor="#1A2B3C" />
-                                    <Label Grid.Column="3" Text="{Binding Canceladas}" FontSize="14" TextColor="#1A2B3C" />
+                                    <Label Grid.Column="1" Text="{Binding TotalCitas}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
+                                    <Label Grid.Column="2" Text="{Binding Completadas}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
+                                    <Label Grid.Column="3" Text="{Binding Canceladas}" FontSize="14" TextColor="#1A2B3C" HorizontalTextAlignment="End" />
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>

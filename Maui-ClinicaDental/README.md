@@ -1,40 +1,88 @@
-# Consultorio Dental — .NET MAUI, primer hito
+# Consultorio Dental — App .NET MAUI
 
-## Qué hay aquí
+App móvil y de escritorio para un consultorio dental: panel del día, pacientes, citas, dentistas, tratamientos, pagos con comprobante y reportes. Consume el API REST de `ConsultorioDental.Api` y usa SQL Server a través de ese API (la app nunca se conecta directo a la base).
 
-- **MainPage.xaml** — Layout de la página principal: encabezado, buscador, resumen del día, acciones rápidas y lista de citas de hoy.
-- **MainPage.xaml.cs** — Code-behind con datos de ejemplo y un ejemplo comentado de consumo REST con `HttpClient`.
-- **ConsultorioDental.sql** — Script para SQL Server con las tablas principales y datos de ejemplo.
+> Estado: funcional de extremo a extremo en local. Validado contra `main` el 2026-11-19.
 
-## Suposiciones que tomé
+## Tecnologías
 
-No me dijiste qué página ni qué entidades eran las principales, así que partí de lo más común en un consultorio:
+- .NET MAUI 10 (Android, iOS, MacCatalyst, Windows), C# / XAML, Shell.
+- Un solo `HttpClient` en `Service/ApiService.cs`; JSON en camelCase.
+- Sin base local: todos los datos vienen del API; si no responde, la app muestra datos de ejemplo con un aviso amarillo (`AvisoApi`), en vez de romperse (salvo en Reportes, donde no hay datos de ejemplo).
 
-- La página principal es un panel del día, no un formulario.
-- Las tablas principales son: **Dentistas, Pacientes, Tratamientos, Citas, CitaTratamientos y Pagos**.
-- Una cita tiene un paciente, un dentista, una fecha/hora, un estado y puede incluir varios tratamientos.
-- Los precios se guardan también en `CitaTratamientos`, para que un cambio futuro en el catálogo no altere lo cobrado en citas pasadas.
+## Estructura
 
-Si tu consultorio maneja otras entidades (por ejemplo, historial clínico, recetas o seguros), dime cuáles y las agrego.
+```
+Maui-ClinicaDental/
+├── Pages/                        # Las 10 páginas (namespace Maui_ClinicaDental.Pages)
+│   ├── MainPage.xaml(.cs)        # Panel del día: citas de hoy, buscador, resumen
+│   ├── PacientesPage.xaml(.cs)   # Lista con búsqueda; editar, eliminar, ver pagos
+│   ├── NuevoPacientePage.xaml(.cs) # Formulario crear/editar (?pacienteId=)
+│   ├── CitasPage.xaml(.cs)       # Lista con filtro por fecha y estado
+│   ├── NuevaCitaPage.xaml(.cs)   # Formulario crear/editar (?citaId=)
+│   ├── PagosPage.xaml(.cs)       # Historial de pagos, filtros y comprobante
+│   ├── DentistasPage.xaml(.cs)   # Catálogo de dentistas
+│   ├── NuevoDentistaPage.xaml(.cs) # Formulario crear/editar (?dentistaId=)
+│   ├── TratamientosPage.xaml(.cs) # Catálogo de tratamientos
+│   ├── NuevoTratamientoPage.xaml(.cs) # Formulario crear/editar (?tratamientoId=)
+│   └── ReportesPage.xaml(.cs)    # Resumen, cobros por día, tratamientos, dentistas
+├── AppShell.xaml(.cs)            # Shell + 10 rutas registradas
+├── App.xaml(.cs)                 # Arranque (MainPage = new AppShell())
+├── MauiProgram.cs
+├── Models/
+│   ├── ApiModels.cs              # DTOs del API (con [JsonPropertyName] camelCase)
+│   ├── Citas.cs / Pacientes.cs   # Modelos de vista (CitaItem, PacienteItem…)
+│   ├── Dentistas.cs / Tratamientos.cs
+│   └── CitasHoy.cs
+└── Service/
+    └── ApiService.cs             # GET/POST/PUT/DELETE contra el API
+```
 
-## Cómo usarlo
+## Páginas y rutas
 
-### 1. Base de datos
-Ejecuta `ConsultorioDental.sql` en SQL Server Management Studio o con `sqlcmd`. Crea la base `ConsultorioDental` si no existe, crea las tablas solo si no existen, y carga datos de ejemplo solo si las tablas están vacías.
+| Página | Ruta Shell | Qué hace |
+| --- | --- | --- |
+| MainPage | `MainPage` (inicio) | Citas de hoy, buscador, resumen, acciones rápidas |
+| PacientesPage | `PacientesPage` (+ `?buscar=`) | Lista, búsqueda, editar, eliminar, ver pagos del paciente |
+| NuevoPacientePage | `NuevoPacientePage` (+ `?pacienteId=`) | Formulario crear/editar paciente |
+| CitasPage | `CitasPage` | Lista con filtros; detalle, cambiar estado, registrar pago, ver pagos, editar, eliminar |
+| NuevaCitaPage | `NuevaCitaPage` (+ `?citaId=`) | Formulario crear/editar cita |
+| PagosPage | `PagosPage` (+ `?citaId=&pacienteId=&pacienteNombre=`) | Historial con filtros, total filtrado y comprobante |
+| DentistasPage | `DentistasPage` | Catálogo; alta, edición y baja lógica |
+| NuevoDentistaPage | `NuevoDentistaPage` (+ `?dentistaId=`) | Formulario crear/editar dentista |
+| TratamientosPage | `TratamientosPage` | Catálogo; alta, edición y baja lógica |
+| NuevoTratamientoPage | `NuevoTratamientoPage` (+ `?tratamientoId=`) | Formulario crear/editar tratamiento |
+| ReportesPage | `ReportesPage` | Resumen, cobros por día, tratamientos más usados, citas por dentista |
 
-### 2. App MAUI
-1. Copia `MainPage.xaml` y `MainPage.xaml.cs` a tu proyecto MAUI, en el espacio de nombres `ConsultorioDental` (o cambia el `x:Class` y el namespace al tuyo).
-2. Registra la página en `AppShell.xaml` si usas Shell, con las rutas `NuevaCitaPage`, `NuevoPacientePage`, `PacientesPage` y `CitasPage`, o cambia esos nombres en el code-behind.
-3. Cambia `ApiBaseUrl` en `MainPage.xaml.cs` por la URL de tu API REST.
+## Decisiones que se tomaron
 
-### 3. API REST sugerida
-Estas rutas encajan con las tablas y con el layout:
+- **Formularios, no preguntas una por una.** Crear y editar se hacen en una página con todos los campos a la vez (como `NuevoPacientePage`). Las preguntas en pantalla una por una se quitaron porque, si se cancelaba alguna, no se guardaba nada y parecía que no actualizaba.
+- **Las listas se desplazan.** La raíz de las páginas de listas es un `Grid` con la lista en una fila `*`, no un `VerticalStackLayout`: con el stack, el `CollectionView` tomaba altura infinita y la página nunca se desplazaba.
+- **Editar reutiliza el formulario de alta.** La misma página crea (sin parámetro) o edita (con `?id=`, precargando con `GET /{entidad}/{id}`).
+- **Eliminar pacientes, dentistas y tratamientos es baja lógica** (`Activo = false` en el servidor) para no romper el historial. Eliminar una cita es borrado real, bloqueado con 409 si ya tiene pagos.
+- **Registrar un pago no cambia el estado de la cita.** Son dos pasos separados: el pago se registra y el estado se cambia aparte.
+- **Fechas en hora local.** `FechaPago` se guarda en UTC en el servidor; la app filtra y muestra en hora local (por eso un pago de la noche no cae al día siguiente).
+- **Comprobante sin API de impresión.** MAUI no tiene impresión multiplataforma: el comprobante se genera como HTML y se abre en el navegador (Ctrl+P) o se comparte por la hoja del sistema.
 
-- `GET /api/citas/hoy` — citas de hoy para la página principal
-- `GET /api/pacientes?buscar={texto}` — buscador de pacientes
-- `GET /api/pacientes/count` — total de pacientes del resumen
-- `POST /api/citas` — crear una cita
-- `POST /api/pacientes` — crear un paciente
+## Configuración del API
 
-## Próximo paso sugerido
-Definir las páginas de Nueva cita y Nuevo paciente, y conectar `GET /api/citas/hoy` para reemplazar los datos de ejemplo.
+La URL base está en `Service/ApiService.cs`:
+
+| Dónde corre la app | URL base |
+| --- | --- |
+| Windows / macOS / simulador iOS | `https://localhost:65350/` |
+| Emulador Android | `http://10.0.2.2:5000/` (el API debe escuchar en `http://0.0.0.0:5000`) |
+| Dispositivo físico | `ApiService.BaseUrlOverride` con la IP de tu PC + puerto 5000 abierto en el firewall |
+
+En desarrollo se usa HTTP en Android para no pelear con el certificado autofirmado de HTTPS. En producción, cambia a `https://tu-dominio/`.
+
+## Cómo correrlo
+
+1. Levanta el API (ver `../ConsultorioDental.Api/README.md`) y verifica en Swagger `GET /citas/hoy`.
+2. Abre la solución de `Maui-ClinicaDental` en Visual Studio, ponla como proyecto de inicio.
+3. Corre en Windows o en el emulador Android. Para probar sin el API, la app muestra los datos de ejemplo con el aviso amarillo.
+
+## Pendiente (de este proyecto)
+
+- Login de administrador: entregado 2026-11-20 en `login-admin-2026-11-20/` (pendiente de copiar y probar).
+- Datos reales del consultorio en el comprobante (se configuran en el API, sección `"Consultorio"` de `appsettings.json`).

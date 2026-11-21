@@ -68,6 +68,8 @@ namespace Maui_ClinicaDental.Pages
         // tratamientos, desde las acciones rápidas de MainPage.
         public ICommand VerDentistasCommand { get; }
         public ICommand VerTratamientosCommand { get; }
+        // 2026-11-19: acceso a los reportes del consultorio.
+        public ICommand VerReportesCommand { get; }
 
         public MainPageViewModel(ApiService? api = null)
         {
@@ -79,6 +81,7 @@ namespace Maui_ClinicaDental.Pages
             VerCitasCommand = new Command(async () => await NavegarAsync("CitasPage", "Citas"));
             VerDentistasCommand = new Command(async () => await NavegarAsync("DentistasPage", "Dentistas"));
             VerTratamientosCommand = new Command(async () => await NavegarAsync("TratamientosPage", "Tratamientos"));
+            VerReportesCommand = new Command(async () => await NavegarAsync("ReportesPage", "Reportes"));
         }
 
         public async Task CargarDesdeApiAsync()

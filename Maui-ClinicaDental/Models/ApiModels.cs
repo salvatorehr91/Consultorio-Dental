@@ -256,3 +256,35 @@ public record CitasPorDentistaDto(
     [property: JsonPropertyName("totalCitas")] int TotalCitas,
     [property: JsonPropertyName("completadas")] int Completadas,
     [property: JsonPropertyName("canceladas")] int Canceladas);
+
+// Login de administrador (2026-11-20): los nombres JSON coinciden
+// con los records del servidor (camelCase por defecto en ASP.NET Core).
+public record LoginRequest(
+    [property: JsonPropertyName("nombreUsuario")] string NombreUsuario,
+    [property: JsonPropertyName("password")] string Password);
+
+public record LoginRespuestaDto(
+    [property: JsonPropertyName("token")] string Token,
+    [property: JsonPropertyName("nombreUsuario")] string NombreUsuario,
+    [property: JsonPropertyName("rol")] string Rol,
+    [property: JsonPropertyName("expiracion")] DateTime Expiracion);
+
+// Administración de usuarios (2026-11-20): los nombres JSON
+// coinciden con los records del servidor (camelCase por defecto
+// en ASP.NET Core).
+public record UsuarioDto(
+    [property: JsonPropertyName("usuarioId")] int UsuarioId,
+    [property: JsonPropertyName("nombreUsuario")] string NombreUsuario,
+    [property: JsonPropertyName("rol")] string Rol,
+    [property: JsonPropertyName("activo")] bool Activo);
+
+public record CrearUsuarioRequest(
+    [property: JsonPropertyName("nombreUsuario")] string NombreUsuario,
+    [property: JsonPropertyName("password")] string Password,
+    [property: JsonPropertyName("rol")] string Rol);
+
+public record CambiarEstadoUsuarioRequest(
+    [property: JsonPropertyName("activo")] bool Activo);
+
+public record RestablecerPasswordRequest(
+    [property: JsonPropertyName("passwordNuevo")] string PasswordNuevo);

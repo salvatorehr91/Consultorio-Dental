@@ -92,12 +92,20 @@ public class DentistasViewModel : INotifyPropertyChanged
     {
         if (dentista is null) return;
 
-        var accion = await Shell.Current.DisplayActionSheetAsync(
-            dentista.NombreCompleto,
-            "Cerrar",
-            null,
-            "Editar",
-            "Eliminar");
+            var opciones = new List<string>
+            {
+                "Editar",
+            };
+            // 2026-11-20 (login): eliminar es solo para Admin; a un
+            // recepcionista ni siquiera se le muestra la opción (el
+            // servidor también lo bloquea con 403).
+            if (_api.EsAdmin) opciones.Add("Eliminar");
+
+            var accion = await Shell.Current.DisplayActionSheetAsync(
+                dentista.NombreCompleto,
+                "Cerrar",
+                null,
+                opciones.ToArray());
 
         switch (accion)
         {

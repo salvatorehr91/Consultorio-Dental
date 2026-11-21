@@ -16,9 +16,15 @@ public class ConsultorioDbContext : DbContext
 
     public DbSet<CitaTratamiento> CitaTratamientos => Set<CitaTratamiento>();
     public DbSet<Pago> Pagos => Set<Pago>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // NombreUsuario único: no puede haber dos usuarios "admin".
+        modelBuilder.Entity<Usuario>()
+            .HasIndex(u => u.NombreUsuario)
+            .IsUnique();
+
         modelBuilder.Entity<Cita>()
             .HasOne(c => c.Paciente)
             .WithMany(p => p.Citas)

@@ -43,3 +43,12 @@ public record ResumenReporteDto(decimal TotalCobrado, int CantidadPagos, decimal
 public record CobroPorDiaDto(DateTime Fecha, decimal Total, int CantidadPagos);
 public record TratamientoUsoDto(int TratamientoId, string Nombre, int Veces, decimal TotalCobrado);
 public record CitasPorDentistaDto(int DentistaId, string DentistaNombre, int TotalCitas, int Completadas, int Canceladas);
+
+// Login de administrador (2026-11-20).
+public record LoginDto(string NombreUsuario, string Password);
+public record LoginRespuestaDto(string Token, string NombreUsuario, string Rol, DateTime Expiracion);
+public record CambiarPasswordDto(string PasswordActual, string PasswordNuevo);
+public record CrearUsuarioDto(string NombreUsuario, string Password, string Rol);
+public record UsuarioDto(int UsuarioId, string NombreUsuario, string Rol, bool Activo);
+public record CambiarEstadoUsuarioDto(bool Activo);
+public record RestablecerPasswordDto(string PasswordNuevo);

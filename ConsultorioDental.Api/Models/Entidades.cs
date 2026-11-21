@@ -92,3 +92,18 @@ public class Pago
 
     public Cita Cita { get; set; } = null!;
 }
+
+// Usuario del login (2026-11-20). PasswordHash lo genera
+// PasswordHasher de ASP.NET Core: aquí nunca se guarda la
+// contraseña en texto. Rol: "Admin" (puede eliminar y crear
+// usuarios) o "Recepcionista" (opera el día a día, no elimina).
+[Table("Usuarios")]
+public class Usuario
+{
+    [Key] public int UsuarioId { get; set; }
+    [Required, MaxLength(100)] public string NombreUsuario { get; set; } = string.Empty;
+    [Required, MaxLength(500)] public string PasswordHash { get; set; } = string.Empty;
+    [Required, MaxLength(20)] public string Rol { get; set; } = "Recepcionista";
+    public bool Activo { get; set; } = true;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
+}

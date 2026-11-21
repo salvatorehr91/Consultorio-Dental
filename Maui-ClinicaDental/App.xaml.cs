@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Maui_ClinicaDental.Pages;
+using Maui_ClinicaDental.Service;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Maui_ClinicaDental
 {
@@ -11,7 +13,12 @@ namespace Maui_ClinicaDental
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            // 2026-11-20 (login): si hay sesión guardada, entra directo
+            // al Shell; si no, pide usuario y contraseña primero.
+            Page inicial = ApiService.HaySesionGuardada()
+                ? new AppShell()
+                : new LoginPage();
+            return new Window(inicial);
         }
     }
 }
