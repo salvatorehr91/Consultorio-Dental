@@ -14,6 +14,7 @@
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
 using ConsultorioDental.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,7 @@ namespace ConsultorioDental.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class CitasController : ControllerBase
 {
     private static readonly string[] EstadosValidos =
@@ -172,6 +174,7 @@ public class CitasController : ControllerBase
         return Ok(ToDto(actualizada));
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

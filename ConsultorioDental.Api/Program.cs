@@ -24,8 +24,12 @@
 // ponerla, en vez de fallar después con un error de SQL confuso.
 
 using ConsultorioDental.Api.Context;
+using ConsultorioDental.Api.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +46,38 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ConsultorioDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// 2026-11-20 (login): autenticación con JWT. La clave se lee de
+// "Jwt:Key": en UAT/Producción ponla por variable de entorno
+// (Jwt__Key, al menos 32 caracteres); en desarrollo vale la de
+// appsettings.json, que es SOLO para desarrollo. Sin clave válida
+// el API no arranca, igual que sin cadena de conexión.
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "Falta la clave JWT ('Jwt:Key'). Ponla por variable de entorno 'Jwt__Key' " +
+        "(al menos 32 caracteres) y reinicia el API.");
+if (jwtKey.Length < 32)
+    throw new InvalidOperationException(
+        "La clave JWT ('Jwt:Key') debe tener al menos 32 caracteres.");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "ConsultorioDental.Api";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "ConsultorioDental.App";
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opciones =>
+    {
+        opciones.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 
 // CORS abierto solo para desarrollo (probar desde el navegador o
@@ -51,9 +87,49 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// 2026-11-20 (login): Swagger con el botón Authorize para el
+// token JWT. Flujo: POST /auth/login -> copiar el token ->
+// botón Authorize (candado, arriba a la derecha) -> pegar el
+// token (sin la palabra Bearer, Swagger la agrega) -> Authorize.
+// Después, cada llamada manda Authorization: Bearer <token>.
+builder.Services.AddSwaggerGen(opciones =>
+{
+    opciones.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Token JWT de POST /auth/login. Pega solo el token (sin 'Bearer').",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    opciones.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
+
+// 2026-11-20 (login): si la tabla Usuarios está vacía, crea el
+// usuario inicial (admin). Si la base o la tabla no existen aún
+// (falta correr el script), solo avisa y el API arranca igual.
+try
+{
+    using var alcance = app.Services.CreateScope();
+    await DbSeeder.CrearAdminInicialAsync(alcance.ServiceProvider);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"[Login] No se pudo crear el usuario inicial: {ex.Message}");
+    Console.WriteLine("[Login] Ejecuta DB/002-Usuarios.sql y reinicia el API.");
+}
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Staging"))
 {

@@ -7,8 +7,43 @@
     Title="Consultorio Dental">
 
     <ShellContent
-        Title="Inicio"
+        Title="Menú"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+
+    <!-- 2026-11-20 (menú): acceso directo a todas las pantallas.
+         "Inicio" vuelve a la pantalla principal. Las rutas son
+         absolutas (//): cada toque aterriza limpio en esa pantalla,
+         sin apilar copias encima de la anterior. -->
+    <MenuItem Text="Inicio"
+              CommandParameter="MainPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Pacientes"
+              CommandParameter="PacientesPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Citas"
+              CommandParameter="CitasPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Pagos"
+              CommandParameter="PagosPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Dentistas"
+              CommandParameter="DentistasPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Tratamientos"
+              CommandParameter="TratamientosPage"
+              Clicked="IrPagina_Clicked" />
+    <MenuItem Text="Reportes"
+              CommandParameter="ReportesPage"
+              Clicked="IrPagina_Clicked" />
+
+    <!-- 2026-11-20 (usuarios): solo Admin (el handler avisa si
+         no lo es). Cerrar sesión va después. -->
+    <MenuItem Text="Administrar usuarios"
+              Clicked="AdministrarUsuarios_Clicked" />
+
+    <!-- 2026-11-20 (login): cierra la sesión y vuelve a LoginPage. -->
+    <MenuItem Text="Cerrar sesión"
+              Clicked="CerrarSesion_Clicked" />
 
 </Shell>

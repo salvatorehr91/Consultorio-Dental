@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- LoginPage.xaml — Inicio de sesión (.NET MAUI)
+     2026-11-20: primera pantalla si no hay sesión guardada. El
+     token JWT que devuelve el API se guarda en SecureStorage y
+     todas las llamadas lo mandan como Authorization: Bearer.
+     Al entrar, la página se reemplaza por AppShell. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.Pages.LoginPage"
+             Title="Iniciar sesión"
+             BackgroundColor="#F4F7F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="16" VerticalOptions="Center">
+
+            <VerticalStackLayout Spacing="2" Margin="0,40,0,0">
+                <Label Text="🦷"
+                       FontSize="40"
+                       HorizontalOptions="Center" />
+                <Label Text="Consultorio Dental"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556"
+                       HorizontalOptions="Center" />
+                <Label Text="Inicia sesión para continuar"
+                       FontSize="14"
+                       TextColor="#5A6B7A"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <Border Padding="14,12" BackgroundColor="White">
+                <VerticalStackLayout Spacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Usuario" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                        <Entry Placeholder="Tu usuario"
+                               Text="{Binding Usuario}"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               ReturnType="Next" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Contraseña" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                        <Entry Placeholder="Tu contraseña"
+                               Text="{Binding Password}"
+                               IsPassword="True"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               ReturnType="Go" />
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding MensajeError}"
+                           FontSize="13"
+                           TextColor="#B3261E"
+                           IsVisible="{Binding TieneError}" />
+
+                    <Button Text="Entrar"
+                            Command="{Binding EntrarCommand}"
+                            BackgroundColor="#0E7C7B"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="48" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Si olvidaste tu contraseña, pide al administrador que te cree una nueva."
+                   FontSize="12"
+                   TextColor="#7A8A99"
+                   HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

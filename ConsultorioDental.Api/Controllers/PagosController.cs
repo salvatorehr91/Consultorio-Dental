@@ -14,6 +14,7 @@
 using ConsultorioDental.Api.Context;
 using ConsultorioDental.Api.Data;
 using ConsultorioDental.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,7 @@ namespace ConsultorioDental.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class PagosController : ControllerBase
 {
     private static readonly string[] MetodosValidos =

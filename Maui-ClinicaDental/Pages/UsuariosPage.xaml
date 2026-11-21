@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- UsuariosPage.xaml — Administración de usuarios (.NET MAUI)
+     2026-11-20: solo la abre un usuario con rol Admin (el menú
+     "Administrar usuarios" del Shell lo revisa antes, y el servidor
+     devuelve 403 si no es Admin). Lista los usuarios del API, sin
+     datos de ejemplo: un usuario inventado en la lista sería
+     peligroso. Tocar un usuario abre: restablecer contraseña o
+     desactivar/reactivar. Los usuarios no se eliminan: se desactivan
+     para que la bitácora pueda decir quién hizo cada cambio. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.Pages.UsuariosPage"
+             Title="Usuarios"
+             BackgroundColor="#F4F7F9">
+
+    <!-- La raíz es un Grid, no un VerticalStackLayout: con
+         VerticalStackLayout el CollectionView pedía altura infinita
+         y la lista no desplazaba (mismo problema que CitasPage). -->
+    <Grid Padding="20,16"
+          RowSpacing="14"
+          RowDefinitions="Auto,Auto,*,Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Start">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Usuarios"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="{Binding TotalUsuariosTexto}"
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="＋ Nuevo"
+                    Command="{Binding NuevoUsuarioCommand}"
+                    BackgroundColor="#0E7C7B"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="48"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <Label Grid.Row="1"
+               Text="{Binding AvisoApi}"
+               IsVisible="{Binding TieneAvisoApi}"
+               FontSize="12"
+               TextColor="#8A6D00"
+               BackgroundColor="#FFF3CD"
+               Padding="10,6" />
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Usuarios}"
+                        EmptyView="No hay usuarios.">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="14,12"
+                           Margin="0,0,0,10"
+                           StrokeShape="{RoundRectangle CornerRadius=12}"
+                           BackgroundColor="White">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerUsuarioCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border Padding="0"
+                                   WidthRequest="44"
+                                   HeightRequest="44"
+                                   StrokeShape="{RoundRectangle CornerRadius=22}"
+                                   BackgroundColor="#0F3556"
+                                   VerticalOptions="Center">
+                                <Label Text="{Binding Inicial}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding NombreUsuario}" FontSize="15" FontAttributes="Bold" TextColor="#1A2B3C" />
+                                <Label Text="{Binding Rol}" FontSize="13" TextColor="#5A6B7A" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   Text="{Binding EstadoTexto}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="{Binding EstadoColor}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="3"
+               Text="Toca un usuario para restablecer su contraseña o desactivarlo. Un usuario desactivado ya no puede entrar."
+               FontSize="12"
+               TextColor="#7A8A99" />
+
+    </Grid>
+
+</ContentPage>

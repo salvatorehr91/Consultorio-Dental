@@ -20,6 +20,9 @@
 // de romperse. Nunca se lanza la excepción al ViewModel.
 
 using Maui_ClinicaDental.Models;
+using Microsoft.Maui.Storage;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace Maui_ClinicaDental.Service
@@ -52,10 +55,109 @@ namespace Maui_ClinicaDental.Service
         private readonly HttpClient _http;
         public string? UltimoError { get; private set; }
 
+        // Login (2026-11-20): el token JWT se guarda en SecureStorage
+        // y el rol en Preferences. El token vive en campos estáticos
+        // para que todos los ViewModels (cada uno crea su propio
+        // ApiService) compartan la misma sesión. Preferences solo
+        // guarda si hay sesión, para que App.xaml.cs pueda decidir
+        // la página inicial sin esperar a una lectura asíncrona.
+        private const string ClaveToken = "token_jwt";
+        private const string ClaveSesion = "sesion_activa";
+        private static string? _token;
+        private static string? _rol;
+        public string? RolActual => _rol;
+        public bool EsAdmin => _rol == "Admin";
+        public static bool HaySesionGuardada() => Preferences.Get(ClaveSesion, false);
+
         public ApiService(HttpClient? http = null)
         {
             _http = http ?? new HttpClient { BaseAddress = new Uri(BaseUrl), Timeout = TimeSpan.FromSeconds(10) };
         }
+
+        // POST auth/login — devuelve (true, null) y guarda el token
+        // y el rol, o (false, motivo). El token se manda después en
+        // cada llamada como: Authorization: Bearer <token>.
+        public async Task<(bool Ok, string? Error)> LoginAsync(string usuario, string password)
+        {
+            UltimoError = null;
+            try
+            {
+                var respuesta = await _http.PostAsJsonAsync("auth/login", new LoginRequest(usuario, password));
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                    return (false, "Usuario o contraseña incorrectos.");
+                if (!respuesta.IsSuccessStatusCode)
+                    return (false, $"El servidor no aceptó el login ({(int)respuesta.StatusCode}).");
+
+                var datos = await respuesta.Content.ReadFromJsonAsync<LoginRespuestaDto>();
+                if (datos is null || string.IsNullOrWhiteSpace(datos.Token))
+                    return (false, "El servidor no devolvió un token.");
+
+                _token = datos.Token;
+                _rol = datos.Rol;
+                await SecureStorage.SetAsync(ClaveToken, datos.Token);
+                Preferences.Set(ClaveSesion, true);
+                Preferences.Set("rol_usuario", datos.Rol);
+                Preferences.Set("nombre_usuario", datos.NombreUsuario);
+                return (true, null);
+            }
+            catch (HttpRequestException ex)
+            {
+                return (false, $"No se pudo conectar con el API. Revisa que esté corriendo. Detalle: {ex.Message}");
+            }
+            catch (TaskCanceledException)
+            {
+                return (false, "El API tardó demasiado en responder (timeout de 10 s).");
+            }
+        }
+
+        // Carga el token guardado (al arrancar o cuando una instancia
+        // nueva lo necesita por primera vez).
+        public static async Task CargarSesionGuardadaAsync()
+        {
+            _token = await SecureStorage.GetAsync(ClaveToken);
+            _rol = string.IsNullOrWhiteSpace(_token)
+                ? null
+                : Preferences.Get("rol_usuario", "Recepcionista");
+        }
+
+        // Cierra la sesión en todos lados: memoria, SecureStorage y
+        // Preferences. La app vuelve a la página de login.
+        public static Task CerrarSesionAsync()
+        {
+            _token = null;
+            _rol = null;
+            SecureStorage.Remove(ClaveToken);
+            Preferences.Set(ClaveSesion, false);
+            Preferences.Remove("rol_usuario");
+            Preferences.Remove("nombre_usuario");
+            return Task.CompletedTask;
+        }
+
+        // Pone el token en el encabezado Authorization antes de cada
+        // llamada. Si esta instancia aún no lo tiene en memoria, lo
+        // carga del SecureStorage.
+        private async Task AplicarTokenAsync()
+        {
+            if (_token is null)
+                await CargarSesionGuardadaAsync();
+            _http.DefaultRequestHeaders.Authorization = string.IsNullOrWhiteSpace(_token)
+                ? null
+                : new AuthenticationHeaderValue("Bearer", _token);
+        }
+
+        // Usuarios (2026-11-20): solo Admin. El servidor devuelve
+        // 403 si el usuario logueado no es Admin.
+        public async Task<List<UsuarioDto>?> GetUsuariosAsync()
+            => await GetAsync<List<UsuarioDto>>("auth/usuarios");
+
+        public async Task<(bool Ok, string? Error)> CrearUsuarioAsync(string nombreUsuario, string password, string rol)
+            => await PostAsync("auth/usuarios", new CrearUsuarioRequest(nombreUsuario, password, rol));
+
+        public async Task<(bool Ok, string? Error)> CambiarEstadoUsuarioAsync(int usuarioId, bool activo)
+            => await PutAsync($"auth/usuarios/{usuarioId}/activo", new CambiarEstadoUsuarioRequest(activo));
+
+        public async Task<(bool Ok, string? Error)> RestablecerPasswordAsync(int usuarioId, string passwordNuevo)
+            => await PutAsync($"auth/usuarios/{usuarioId}/password", new RestablecerPasswordRequest(passwordNuevo));
 
         // GET /api/citas/hoy
         public async Task<List<CitaDto>?> GetCitasHoyAsync()
@@ -224,8 +326,16 @@ namespace Maui_ClinicaDental.Service
             UltimoError = null;
             try
             {
-                var resultado = await _http.GetFromJsonAsync<T>(url);
-                return resultado;
+                await AplicarTokenAsync();
+                var respuesta = await _http.GetAsync(url);
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    UltimoError = "Sesión expirada. Vuelve a iniciar sesión.";
+                    return default;
+                }
+                respuesta.EnsureSuccessStatusCode();
+                return await respuesta.Content.ReadFromJsonAsync<T>();
             }
             catch (HttpRequestException ex)
             {
@@ -248,7 +358,15 @@ namespace Maui_ClinicaDental.Service
         {
             try
             {
+                await AplicarTokenAsync();
                 var respuesta = await _http.PostAsJsonAsync(url, body);
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    return (false, "Sesión expirada. Vuelve a iniciar sesión.");
+                }
+                if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+                    return (false, "No tienes permiso para hacer eso (se requiere Admin).");
                 if (respuesta.IsSuccessStatusCode)
                     return (true, null);
 
@@ -269,7 +387,15 @@ namespace Maui_ClinicaDental.Service
         {
             try
             {
+                await AplicarTokenAsync();
                 var respuesta = await _http.PutAsJsonAsync(url, body);
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    return (false, "Sesión expirada. Vuelve a iniciar sesión.");
+                }
+                if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+                    return (false, "No tienes permiso para hacer eso (se requiere Admin).");
                 if (respuesta.IsSuccessStatusCode)
                     return (true, null);
 
@@ -294,7 +420,15 @@ namespace Maui_ClinicaDental.Service
         {
             try
             {
+                await AplicarTokenAsync();
                 var respuesta = await _http.DeleteAsync(url);
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    return (false, "Sesión expirada. Vuelve a iniciar sesión.");
+                }
+                if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+                    return (false, "No tienes permiso para eliminar (se requiere Admin).");
                 if (respuesta.IsSuccessStatusCode)
                     return (true, null);
 

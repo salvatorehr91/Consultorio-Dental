@@ -125,16 +125,24 @@ public class CitasViewModel : INotifyPropertyChanged
     {
         if (cita is null) return;
 
-        var accion = await Shell.Current.DisplayActionSheetAsync(
-            $"{cita.PacienteNombre} — {cita.FechaHora:dddd dd/MM HH:mm}",
-            "Cerrar",
-            null,
-            "Ver detalle",
-            "Cambiar estado",
-            "Registrar pago",
-            "Ver pagos",
-            "Editar",
-            "Eliminar");
+            var opciones = new List<string>
+            {
+                "Ver detalle",
+                "Cambiar estado",
+                "Registrar pago",
+                "Ver pagos",
+                "Editar",
+            };
+            // 2026-11-20 (login): eliminar es solo para Admin; a un
+            // recepcionista ni siquiera se le muestra la opción (el
+            // servidor también lo bloquea con 403).
+            if (_api.EsAdmin) opciones.Add("Eliminar");
+
+            var accion = await Shell.Current.DisplayActionSheetAsync(
+                $"{cita.PacienteNombre} — {cita.FechaHora:dddd dd/MM HH:mm}",
+                "Cerrar",
+                null,
+                opciones.ToArray());
 
         switch (accion)
         {

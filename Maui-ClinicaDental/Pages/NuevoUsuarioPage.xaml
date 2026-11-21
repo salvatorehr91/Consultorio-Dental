@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- NuevoUsuarioPage.xaml — Formulario de usuario (.NET MAUI)
+     2026-11-20: solo la abre un Admin, desde UsuariosPage. Crea un
+     usuario con nombre, contraseña (mínimo 8 caracteres) y rol.
+     El usuario debe cambiar su contraseña en cuanto entre. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.Pages.NuevoUsuarioPage"
+             Title="Nuevo usuario"
+             BackgroundColor="#F4F7F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="14">
+
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Nuevo usuario"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#0F3556" />
+                <Label Text="El usuario debe cambiar su contraseña en cuanto entre. Solo el Admin puede eliminar (desactivar) usuarios."
+                       FontSize="14"
+                       TextColor="#5A6B7A" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Nombre de usuario *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Entry Placeholder="Ej.: recepcion"
+                       Text="{Binding NombreUsuario}"
+                       BackgroundColor="White"
+                       TextColor="Black" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Contraseña * (mínimo 8 caracteres)" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Entry Placeholder="Contraseña inicial"
+                       Text="{Binding Password}"
+                       IsPassword="True"
+                       BackgroundColor="White"
+                       TextColor="Black" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Rol *" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                <Picker ItemsSource="{Binding Roles}"
+                        SelectedItem="{Binding Rol}"
+                        BackgroundColor="White"
+                        TextColor="Black" />
+                <Label Text="Admin: puede eliminar y administrar usuarios. Recepcionista: opera el día a día, no elimina."
+                       FontSize="12"
+                       TextColor="#7A8A99" />
+            </VerticalStackLayout>
+
+            <Label Text="{Binding MensajeError}"
+                   FontSize="13"
+                   TextColor="#B3261E"
+                   IsVisible="{Binding TieneError}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="White"
+                        TextColor="#0F3556"
+                        BorderColor="#D6DEE5"
+                        BorderWidth="1"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+                <Button Grid.Column="1"
+                        Text="Crear usuario"
+                        Command="{Binding GuardarCommand}"
+                        BackgroundColor="#0E7C7B"
+                        TextColor="White"
+                        CornerRadius="10"
+                        HeightRequest="48" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
