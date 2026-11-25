@@ -7,7 +7,7 @@
     Title="Consultorio Dental">
 
     <ShellContent
-        Title="Inicio"
+        Title="Menu"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
