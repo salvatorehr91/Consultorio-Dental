@@ -69,6 +69,7 @@
         </HorizontalStackLayout>
 
         <CollectionView Grid.Row="4"
+                        IsVisible="{Binding ListaVisible}"
                         ItemsSource="{Binding CitasFiltradas}"
                         EmptyView="No hay citas para esa fecha y estado.">
             <CollectionView.ItemTemplate>
@@ -106,6 +107,13 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+        <ActivityIndicator Grid.Row="4"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="#0E7C7B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
 
     </Grid>
 

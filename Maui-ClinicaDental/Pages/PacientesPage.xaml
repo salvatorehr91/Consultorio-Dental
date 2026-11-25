@@ -53,6 +53,7 @@
                    TextColor="Black" />
 
         <CollectionView Grid.Row="3"
+                        IsVisible="{Binding ListaVisible}"
                         ItemsSource="{Binding PacientesFiltrados}"
                         EmptyView="No hay pacientes que coincidan con la búsqueda.">
             <CollectionView.ItemTemplate>
@@ -89,6 +90,13 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="#0E7C7B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
 
         <Label Grid.Row="4"
                Text="Toca un paciente para ver sus datos. Desde ahí puedes crearle una cita."

@@ -86,6 +86,13 @@ public class BitacoraViewModel : INotifyPropertyChanged
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); }
+    }
 
     public bool SinRegistros => Registros.Count == 0 && string.IsNullOrWhiteSpace(AvisoApi);
 
@@ -99,6 +106,7 @@ public class BitacoraViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var registros = await _api.GetBitacoraAsync(Desde, Hasta, null, Entidad, null);
         if (registros is null)
         {

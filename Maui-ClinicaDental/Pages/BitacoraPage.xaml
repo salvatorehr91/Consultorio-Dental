@@ -26,6 +26,10 @@
                    BackgroundColor="#FFF3CD"
                    Padding="10,6" />
 
+            <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                               IsVisible="{Binding EstaCargando}"
+                               Color="#0E7C7B" />
             <!-- Filtros -->
             <Border Padding="14,12" BackgroundColor="White">
                 <VerticalStackLayout Spacing="10">

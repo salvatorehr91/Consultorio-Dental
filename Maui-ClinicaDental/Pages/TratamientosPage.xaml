@@ -43,6 +43,7 @@
                Padding="10,6" />
 
         <CollectionView Grid.Row="2"
+                        IsVisible="{Binding ListaVisible}"
                         ItemsSource="{Binding Tratamientos}"
                         EmptyView="No hay tratamientos registrados.">
             <CollectionView.ItemTemplate>
@@ -72,6 +73,13 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="#0E7C7B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
 
         <Label Grid.Row="3"
                Text="Toca un tratamiento para editarlo o eliminarlo. El precio de las citas ya cobradas no cambia."

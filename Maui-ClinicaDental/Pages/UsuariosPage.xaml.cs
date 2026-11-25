@@ -58,6 +58,14 @@ public class UsuariosViewModel : INotifyPropertyChanged
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. La lista se oculta mientras carga para no mostrar el "No hay registros" antes de tiempo.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListaVisible)); }
+    }
+    public bool ListaVisible => !EstaCargando;
 
     public ICommand NuevoUsuarioCommand { get; }
     public ICommand VerUsuarioCommand { get; }
@@ -71,6 +79,7 @@ public class UsuariosViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var usuarios = await _api.GetUsuariosAsync();
         if (usuarios is null)
         {
@@ -138,7 +147,7 @@ public class UsuariosViewModel : INotifyPropertyChanged
 
         await Shell.Current.DisplayAlertAsync(
             "Contraseña actualizada",
-            $"La contraseña de {usuario.NombreUsuario} ya es otra. \nValidar nuevamente con la nueva contraseña.",
+            $"La contraseña de {usuario.NombreUsuario} ya es otra. Dile que la cambie en cuanto entre.",
             "OK");
     }
 

@@ -91,6 +91,13 @@ public class ReportesViewModel : INotifyPropertyChanged
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); }
+    }
 
     public ICommand ActualizarCommand { get; }
 
@@ -102,6 +109,7 @@ public class ReportesViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         if (Desde > Hasta)
         {
             AvisoApi = "La fecha Desde no puede ser mayor que Hasta.";
