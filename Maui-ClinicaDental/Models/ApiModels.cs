@@ -288,3 +288,15 @@ public record CambiarEstadoUsuarioRequest(
 
 public record RestablecerPasswordRequest(
     [property: JsonPropertyName("passwordNuevo")] string PasswordNuevo);
+
+// Bitácora (2026-11-21): FechaHora llega en UTC, la página la
+// muestra en hora local con ToLocalTime().
+public record BitacoraDto(
+    [property: JsonPropertyName("bitacoraId")] int BitacoraId,
+    [property: JsonPropertyName("fechaHora")] DateTime FechaHora,
+    [property: JsonPropertyName("usuarioId")] int UsuarioId,
+    [property: JsonPropertyName("usuarioNombre")] string UsuarioNombre,
+    [property: JsonPropertyName("accion")] string Accion,
+    [property: JsonPropertyName("entidad")] string Entidad,
+    [property: JsonPropertyName("entidadId")] int EntidadId,
+    [property: JsonPropertyName("detalle")] string Detalle);

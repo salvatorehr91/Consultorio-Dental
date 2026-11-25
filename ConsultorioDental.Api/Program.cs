@@ -78,6 +78,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
+// 2026-11-21 (bitácora): acceso al HttpContext (para saber qué
+// usuario logueado hizo cada cambio) y el servicio que escribe
+// en la tabla Bitacora.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<BitacoraService>();
+
 builder.Services.AddControllers();
 
 // CORS abierto solo para desarrollo (probar desde el navegador o

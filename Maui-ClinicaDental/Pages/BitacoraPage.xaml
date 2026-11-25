@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- BitacoraPage.xaml — Bitácora de cambios (.NET MAUI)
+     2026-11-21: quién hizo cada cambio, cuándo y sobre qué. Solo
+     la abre un Admin (el menú del Shell lo revisa y el servidor
+     devuelve 403 si no lo es). Sin datos de ejemplo: son registros
+     reales del API. La fecha se guarda en UTC y se muestra en hora
+     local del consultorio. -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Maui_ClinicaDental.Pages.BitacoraPage"
+             Title="Bitácora"
+             BackgroundColor="#F4F7F9">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16" Spacing="16">
+
+            <Label Text="Bitácora"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="#0F3556" />
+
+            <Label Text="{Binding AvisoApi}"
+                   IsVisible="{Binding TieneAvisoApi}"
+                   FontSize="12"
+                   TextColor="#8A6D00"
+                   BackgroundColor="#FFF3CD"
+                   Padding="10,6" />
+
+            <!-- Filtros -->
+            <Border Padding="14,12" BackgroundColor="White">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Filtros" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Desde" FontSize="12" TextColor="#5A6B7A" />
+                            <DatePicker Date="{Binding Desde, Mode=TwoWay}"
+                                        BackgroundColor="White"
+                                        TextColor="Black" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Hasta" FontSize="12" TextColor="#5A6B7A" />
+                            <DatePicker Date="{Binding Hasta, Mode=TwoWay}"
+                                        BackgroundColor="White"
+                                        TextColor="Black" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Entidad" FontSize="12" TextColor="#5A6B7A" />
+                        <Picker ItemsSource="{Binding Entidades}"
+                                SelectedItem="{Binding Entidad}"
+                                BackgroundColor="White"
+                                TextColor="Black" />
+                    </VerticalStackLayout>
+                    <Button Text="Actualizar"
+                            Command="{Binding ActualizarCommand}"
+                            BackgroundColor="#0E7C7B"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="44" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding TotalRegistrosTexto}"
+                   FontSize="14"
+                   TextColor="#5A6B7A" />
+
+            <!-- Registros -->
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Registros}" Spacing="10">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="14,12" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="2">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <Label Text="{Binding FechaTexto}" FontSize="13" FontAttributes="Bold" TextColor="#0F3556" />
+                                    <Label Grid.Column="1" Text="{Binding Accion}" FontSize="12" FontAttributes="Bold" TextColor="{Binding AccionColor}" />
+                                </Grid>
+                                <Label Text="{Binding UsuarioNombre}" FontSize="13" TextColor="#5A6B7A" />
+                                <Label Text="{Binding Descripcion}" FontSize="14" TextColor="#1A2B3C" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Label Text="Sin registros en ese período."
+                   FontSize="13"
+                   TextColor="#7A8A99"
+                   IsVisible="{Binding SinRegistros}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

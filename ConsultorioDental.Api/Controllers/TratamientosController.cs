@@ -23,7 +23,12 @@ namespace ConsultorioDental.Api.Controllers;
 public class TratamientosController : ControllerBase
 {
     private readonly ConsultorioDbContext _db;
-    public TratamientosController(ConsultorioDbContext db) => _db = db;
+    private readonly BitacoraService _bitacora;
+    public TratamientosController(ConsultorioDbContext db, BitacoraService bitacora)
+    {
+        _db = db;
+        _bitacora = bitacora;
+    }
 
     private static TratamientoDto ToDto(Tratamiento t) => new(
         t.TratamientoId, t.Nombre, t.Descripcion, t.Precio, t.DuracionMinutos);
@@ -60,6 +65,7 @@ public class TratamientosController : ControllerBase
 
         _db.Tratamientos.Add(tratamiento);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Crear", "Tratamiento", tratamiento.TratamientoId, $"{tratamiento.Nombre} (${tratamiento.Precio:0.00})");
 
         return CreatedAtAction(nameof(GetById), new { id = tratamiento.TratamientoId }, ToDto(tratamiento));
     }
@@ -80,6 +86,7 @@ public class TratamientosController : ControllerBase
         tratamiento.DuracionMinutos = dto.DuracionMinutos;
 
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Editar", "Tratamiento", tratamiento.TratamientoId, $"{tratamiento.Nombre} (${tratamiento.Precio:0.00})");
         return Ok(ToDto(tratamiento));
     }
 
@@ -93,6 +100,7 @@ public class TratamientosController : ControllerBase
 
         tratamiento.Activo = false;
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Eliminar", "Tratamiento", tratamiento.TratamientoId, $"{tratamiento.Nombre} (${tratamiento.Precio:0.00})");
         return NoContent();
     }
 }

@@ -47,7 +47,7 @@ namespace Maui_ClinicaDental.Service
                 // tu PC, p. ej. http://192.168.1.50:5000/
                 return "http://10.0.2.2:5000/";
 #else
-            return "https://localhost:65350/";
+            return "http://localhost:5000/";
 #endif
             }
         }
@@ -158,6 +158,23 @@ namespace Maui_ClinicaDental.Service
 
         public async Task<(bool Ok, string? Error)> RestablecerPasswordAsync(int usuarioId, string passwordNuevo)
             => await PutAsync($"auth/usuarios/{usuarioId}/password", new RestablecerPasswordRequest(passwordNuevo));
+
+        // Bitácora (2026-11-21): solo Admin. Fechas como yyyy-MM-dd
+        // (fecha local del consultorio); el servidor las convierte
+        // a UTC con la zona de México.
+        public async Task<List<BitacoraDto>?> GetBitacoraAsync(
+            DateTime? desde = null, DateTime? hasta = null,
+            int? usuarioId = null, string? entidad = null, string? accion = null)
+        {
+            var query = new List<string>();
+            if (desde.HasValue) query.Add($"desde={desde.Value:yyyy-MM-dd}");
+            if (hasta.HasValue) query.Add($"hasta={hasta.Value:yyyy-MM-dd}");
+            if (usuarioId.HasValue) query.Add($"usuarioId={usuarioId.Value}");
+            if (!string.IsNullOrWhiteSpace(entidad) && entidad != "Todas") query.Add($"entidad={Uri.EscapeDataString(entidad)}");
+            if (!string.IsNullOrWhiteSpace(accion) && accion != "Todas") query.Add($"accion={Uri.EscapeDataString(accion)}");
+            var url = query.Count == 0 ? "bitacora" : "bitacora?" + string.Join("&", query);
+            return await GetAsync<List<BitacoraDto>>(url);
+        }
 
         // GET /api/citas/hoy
         public async Task<List<CitaDto>?> GetCitasHoyAsync()
