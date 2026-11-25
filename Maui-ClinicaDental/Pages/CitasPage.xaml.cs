@@ -56,6 +56,14 @@ public class CitasViewModel : INotifyPropertyChanged
     }
 
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. La lista se oculta mientras carga para no mostrar el "No hay registros" antes de tiempo.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListaVisible)); }
+    }
+    public bool ListaVisible => !EstaCargando;
 
     private DateTime _fechaFiltro = DateTime.Today;
     public DateTime FechaFiltro
@@ -91,6 +99,7 @@ public class CitasViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var citas = await _api.GetCitasAsync((MostrarTodasLasFechas ? null : FechaFiltro), EstadoFiltro);
         if (citas is null)
         {
@@ -125,24 +134,16 @@ public class CitasViewModel : INotifyPropertyChanged
     {
         if (cita is null) return;
 
-            var opciones = new List<string>
-            {
-                "Ver detalle",
-                "Cambiar estado",
-                "Registrar pago",
-                "Ver pagos",
-                "Editar",
-            };
-            // 2026-11-20 (login): eliminar es solo para Admin; a un
-            // recepcionista ni siquiera se le muestra la opción (el
-            // servidor también lo bloquea con 403).
-            if (_api.EsAdmin) opciones.Add("Eliminar");
-
-            var accion = await Shell.Current.DisplayActionSheetAsync(
-                $"{cita.PacienteNombre} — {cita.FechaHora:dddd dd/MM HH:mm}",
-                "Cerrar",
-                null,
-                opciones.ToArray());
+        var accion = await Shell.Current.DisplayActionSheetAsync(
+            $"{cita.PacienteNombre} — {cita.FechaHora:dddd dd/MM HH:mm}",
+            "Cerrar",
+            null,
+            "Ver detalle",
+            "Cambiar estado",
+            "Registrar pago",
+            "Ver pagos",
+            "Editar",
+            "Eliminar");
 
         switch (accion)
         {

@@ -59,6 +59,14 @@ public class PacientesViewModel : INotifyPropertyChanged
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. La lista se oculta mientras carga para no mostrar el "No hay registros" antes de tiempo.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListaVisible)); }
+    }
+    public bool ListaVisible => !EstaCargando;
 
     private string _textoBusqueda = string.Empty;
     public string TextoBusqueda
@@ -80,6 +88,7 @@ public class PacientesViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var pacientes = await _api.GetPacientesAsync();
         if (pacientes is null)
         {
@@ -111,22 +120,14 @@ public class PacientesViewModel : INotifyPropertyChanged
     {
         if (paciente is null) return;
 
-            var opciones = new List<string>
-            {
-                "Ver pagos",
-                "Nueva cita",
-                "Editar",
-            };
-            // 2026-11-20 (login): eliminar es solo para Admin; a un
-            // recepcionista ni siquiera se le muestra la opción (el
-            // servidor también lo bloquea con 403).
-            if (_api.EsAdmin) opciones.Add("Eliminar");
-
-            var accion = await Shell.Current.DisplayActionSheetAsync(
-                paciente.NombreCompleto,
-                "Cerrar",
-                null,
-                opciones.ToArray());
+        var accion = await Shell.Current.DisplayActionSheetAsync(
+            paciente.NombreCompleto,
+            "Cerrar",
+            null,
+            "Ver pagos",
+            "Nueva cita",
+            "Editar",
+            "Eliminar");
 
         switch (accion)
         {

@@ -88,6 +88,14 @@ public class NuevoTratamientoViewModel : INotifyPropertyChanged
     }
 
     public bool TieneError => !string.IsNullOrWhiteSpace(MensajeError);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. El botón Guardar se bloquea mientras carga.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(PuedeGuardar)); }
+    }
+    public bool PuedeGuardar => !EstaCargando;
 
     public ICommand GuardarCommand { get; }
     public ICommand CancelarCommand { get; }
@@ -104,6 +112,7 @@ public class NuevoTratamientoViewModel : INotifyPropertyChanged
     // creación vacía, para no guardar sobre datos incompletos.
     public async Task CargarParaEditarAsync(int id)
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var tratamiento = await _api.GetTratamientoAsync(id);
         if (tratamiento is null)
         {
@@ -121,6 +130,7 @@ public class NuevoTratamientoViewModel : INotifyPropertyChanged
 
     private async Task GuardarAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         MensajeError = string.Empty;
 
         if (string.IsNullOrWhiteSpace(Nombre))

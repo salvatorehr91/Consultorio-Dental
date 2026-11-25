@@ -74,6 +74,10 @@
                    FontSize="13"
                    TextColor="#B3261E"
                    IsVisible="{Binding TieneError}" />
+            <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                               IsVisible="{Binding EstaCargando}"
+                               Color="#0E7C7B" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <Button Text="Cancelar"
@@ -87,6 +91,7 @@
                 <Button Grid.Column="1"
                         Text="Guardar dentista"
                         Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding PuedeGuardar}"
                         BackgroundColor="#0E7C7B"
                         TextColor="White"
                         CornerRadius="10"

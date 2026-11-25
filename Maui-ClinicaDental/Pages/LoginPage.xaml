@@ -56,10 +56,15 @@
 
                     <Button Text="Entrar"
                             Command="{Binding EntrarCommand}"
+                            IsEnabled="{Binding PuedeEntrar}"
                             BackgroundColor="#0E7C7B"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="48" />
+                    <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+                    <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                                       IsVisible="{Binding EstaCargando}"
+                                       Color="#0E7C7B" />
                 </VerticalStackLayout>
             </Border>
 

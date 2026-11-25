@@ -45,6 +45,14 @@ public class LoginViewModel : INotifyPropertyChanged
     }
 
     public bool TieneError => !string.IsNullOrWhiteSpace(MensajeError);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. El botón Entrar se bloquea mientras carga.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(PuedeEntrar)); }
+    }
+    public bool PuedeEntrar => !EstaCargando;
 
     public ICommand EntrarCommand { get; }
 
@@ -56,6 +64,7 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task EntrarAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         MensajeError = string.Empty;
 
         if (string.IsNullOrWhiteSpace(Usuario) || string.IsNullOrWhiteSpace(Password))

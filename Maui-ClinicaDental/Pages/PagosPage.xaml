@@ -70,6 +70,7 @@
                 HeightRequest="44" />
 
         <CollectionView Grid.Row="6"
+                        IsVisible="{Binding ListaVisible}"
                         ItemsSource="{Binding PagosFiltrados}"
                         VerticalOptions="Fill"
                         EmptyView="No hay pagos para esos filtros.">
@@ -99,6 +100,13 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        <!-- 2026-11-25 (loading): se ve mientras se valida el acceso al API. -->
+        <ActivityIndicator Grid.Row="6"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="#0E7C7B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
 
         <!-- Comprobante del pago seleccionado. Solo ocupa su fila cuando
              TieneComprobante es true; con el botón Cerrar (o tocando de

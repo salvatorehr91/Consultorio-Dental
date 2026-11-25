@@ -170,6 +170,14 @@ public class NuevaCitaViewModel : INotifyPropertyChanged
     }
 
     public bool TieneError => !string.IsNullOrWhiteSpace(MensajeError);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. El botón Guardar se bloquea mientras carga.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(PuedeGuardar)); }
+    }
+    public bool PuedeGuardar => !EstaCargando;
 
     public ICommand GuardarCommand { get; }
     public ICommand CancelarCommand { get; }
@@ -183,6 +191,7 @@ public class NuevaCitaViewModel : INotifyPropertyChanged
 
     public async Task CargarCatalogosDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var pacientes = await _api.GetPacientesAsync();
         if (pacientes is not null)
         {
@@ -214,6 +223,7 @@ public class NuevaCitaViewModel : INotifyPropertyChanged
     // cita (se buscan por Id, que el API ya devuelve en CitaDto).
     public async Task CargarParaEditarAsync(int id)
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         await CargarCatalogosDesdeApiAsync();
 
         var cita = await _api.GetCitaAsync(id);
@@ -244,6 +254,7 @@ public class NuevaCitaViewModel : INotifyPropertyChanged
 
     private async Task GuardarAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         MensajeError = string.Empty;
 
         if (PacienteSeleccionado is null)

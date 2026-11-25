@@ -180,6 +180,14 @@ public partial class PagosPage : ContentPage
             set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
         }
         public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+        // 2026-11-25 (loading): true mientras se valida el acceso al API. La lista se oculta mientras carga para no mostrar el "No hay registros" antes de tiempo.
+        private bool _estaCargando;
+        public bool EstaCargando
+        {
+            get => _estaCargando;
+            private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListaVisible)); }
+        }
+        public bool ListaVisible => !EstaCargando;
 
         public bool TieneComprobante => _comprobante is not null;
 
@@ -251,6 +259,7 @@ public partial class PagosPage : ContentPage
 
         public async Task CargarAsync()
         {
+            using var _ = CargandoScope.Activar(v => EstaCargando = v);
             // Una sola carga: el servidor solo pre-filtra por cita/paciente
             // (con su rango de fecha ampliado 1 día por el tema UTC).
             // Fecha, paciente y método se aplican en local, en AplicarFiltros.

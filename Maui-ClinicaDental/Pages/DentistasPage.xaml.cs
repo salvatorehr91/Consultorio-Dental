@@ -54,6 +54,14 @@ public class DentistasViewModel : INotifyPropertyChanged
         private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
     }
     public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+    // 2026-11-25 (loading): true mientras se valida el acceso al API. La lista se oculta mientras carga para no mostrar el "No hay registros" antes de tiempo.
+    private bool _estaCargando;
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        private set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(ListaVisible)); }
+    }
+    public bool ListaVisible => !EstaCargando;
 
     public ICommand NuevoDentistaCommand { get; }
     public ICommand VerDentistaCommand { get; }
@@ -68,6 +76,7 @@ public class DentistasViewModel : INotifyPropertyChanged
 
     public async Task CargarDesdeApiAsync()
     {
+        using var _ = CargandoScope.Activar(v => EstaCargando = v);
         var dentistas = await _api.GetDentistasAsync();
         if (dentistas is null)
         {
@@ -92,20 +101,12 @@ public class DentistasViewModel : INotifyPropertyChanged
     {
         if (dentista is null) return;
 
-            var opciones = new List<string>
-            {
-                "Editar",
-            };
-            // 2026-11-20 (login): eliminar es solo para Admin; a un
-            // recepcionista ni siquiera se le muestra la opción (el
-            // servidor también lo bloquea con 403).
-            if (_api.EsAdmin) opciones.Add("Eliminar");
-
-            var accion = await Shell.Current.DisplayActionSheetAsync(
-                dentista.NombreCompleto,
-                "Cerrar",
-                null,
-                opciones.ToArray());
+        var accion = await Shell.Current.DisplayActionSheetAsync(
+            dentista.NombreCompleto,
+            "Cerrar",
+            null,
+            "Editar",
+            "Eliminar");
 
         switch (accion)
         {

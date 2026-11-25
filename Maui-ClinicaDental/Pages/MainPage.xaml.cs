@@ -51,6 +51,13 @@ namespace Maui_ClinicaDental.Pages
             private set { _avisoApi = value; OnPropertyChanged(); OnPropertyChanged(nameof(TieneAvisoApi)); }
         }
         public bool TieneAvisoApi => !string.IsNullOrWhiteSpace(AvisoApi);
+        // 2026-11-25 (loading): true mientras se valida el acceso al API.
+        private bool _estaCargando;
+        public bool EstaCargando
+        {
+            get => _estaCargando;
+            private set { _estaCargando = value; OnPropertyChanged(); }
+        }
 
         public ObservableCollection<CitaHoy> CitasHoy { get; } = new()
         {
@@ -86,6 +93,7 @@ namespace Maui_ClinicaDental.Pages
 
         public async Task CargarDesdeApiAsync()
         {
+            using var _ = CargandoScope.Activar(v => EstaCargando = v);
             var citas = await _api.GetCitasHoyAsync();
             if (citas is null)
             {
