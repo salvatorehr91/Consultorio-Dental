@@ -52,3 +52,4 @@ public record CrearUsuarioDto(string NombreUsuario, string Password, string Rol)
 public record UsuarioDto(int UsuarioId, string NombreUsuario, string Rol, bool Activo);
 public record CambiarEstadoUsuarioDto(bool Activo);
 public record RestablecerPasswordDto(string PasswordNuevo);
+public record BitacoraDto(int BitacoraId, DateTime FechaHora, int UsuarioId, string UsuarioNombre, string Accion, string Entidad, int EntidadId, string Detalle);

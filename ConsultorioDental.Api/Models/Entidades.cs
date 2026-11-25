@@ -107,3 +107,22 @@ public class Usuario
     public bool Activo { get; set; } = true;
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 }
+
+// Bitácora de cambios (2026-11-21): quién hizo cada cambio, cuándo
+// y sobre qué. UsuarioNombre es una foto del nombre al momento del
+// cambio. Los usuarios nunca se borran (solo se desactivan), así
+// que UsuarioId siempre apunta a un usuario que existe.
+[Table("Bitacora")]
+public class Bitacora
+{
+    [Key] public int BitacoraId { get; set; }
+    public DateTime FechaHora { get; set; } = DateTime.UtcNow;
+    public int UsuarioId { get; set; }
+    [Required, MaxLength(100)] public string UsuarioNombre { get; set; } = string.Empty;
+    [Required, MaxLength(30)] public string Accion { get; set; } = string.Empty;
+    [Required, MaxLength(30)] public string Entidad { get; set; } = string.Empty;
+    public int EntidadId { get; set; }
+    [MaxLength(500)] public string Detalle { get; set; } = string.Empty;
+
+    public Usuario Usuario { get; set; } = null!;
+}

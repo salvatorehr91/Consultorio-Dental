@@ -41,7 +41,12 @@ public class CitasController : ControllerBase
         TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ZonaMexico).Date;
 
     private readonly ConsultorioDbContext _db;
-    public CitasController(ConsultorioDbContext db) => _db = db;
+    private readonly BitacoraService _bitacora;
+    public CitasController(ConsultorioDbContext db, BitacoraService bitacora)
+    {
+        _db = db;
+        _bitacora = bitacora;
+    }
 
     private static CitaDto ToDto(Cita c) => new(
         c.CitaId,
@@ -109,6 +114,7 @@ public class CitasController : ControllerBase
 
         cita.Estado = dto.Estado;
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("CambiarEstado", "Cita", cita.CitaId, $"Cita del {cita.FechaHora:dd/MM/yyyy HH:mm} → {dto.Estado}");
 
         var actualizada = await QueryBase().FirstAsync(c => c.CitaId == id);
         return Ok(ToDto(actualizada));
@@ -169,6 +175,7 @@ public class CitasController : ControllerBase
         }
 
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Editar", "Cita", cita.CitaId, $"Cita del {cita.FechaHora:dd/MM/yyyy HH:mm} ({cita.Estado})");
 
         var actualizada = await QueryBase().FirstAsync(c => c.CitaId == id);
         return Ok(ToDto(actualizada));
@@ -193,6 +200,7 @@ public class CitasController : ControllerBase
         _db.CitaTratamientos.RemoveRange(cita.CitaTratamientos);
         _db.Citas.Remove(cita);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Eliminar", "Cita", cita.CitaId, $"Cita del {cita.FechaHora:dd/MM/yyyy HH:mm} ({cita.Estado})");
         return NoContent();
     }
 
@@ -245,6 +253,7 @@ public class CitasController : ControllerBase
             await _db.SaveChangesAsync();
         }
 
+        await _bitacora.RegistrarAsync("Crear", "Cita", cita.CitaId, $"Cita del {cita.FechaHora:dd/MM/yyyy HH:mm} ({cita.Estado})");
         var creada = await QueryBase().FirstAsync(c => c.CitaId == cita.CitaId);
         return CreatedAtAction(nameof(GetById), new { id = cita.CitaId }, ToDto(creada));
     }

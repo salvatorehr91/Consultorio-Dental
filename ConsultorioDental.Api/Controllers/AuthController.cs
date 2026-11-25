@@ -3,6 +3,11 @@
 // POST   /auth/cambiar-password — cambia la contraseña del usuario logueado.
 // POST   /auth/usuarios         — crea un usuario (solo Admin).
 // GET    /auth/usuarios         — lista de usuarios, sin el hash (solo Admin).
+// PUT    /auth/usuarios/{id}/activo   — desactiva o reactiva (solo Admin).
+// PUT    /auth/usuarios/{id}/password — restablece la contraseña (solo Admin).
+//
+// 2026-11-21 (bitácora): crear usuario, cambiar su estado y
+// restablecer su contraseña quedan registrados en la bitácora.
 //
 // El token dura las horas de "Jwt:ExpiracionHoras" (8 por defecto)
 // y se manda en cada llamada como: Authorization: Bearer <token>.
@@ -32,12 +37,14 @@ public class AuthController : ControllerBase
 
     private readonly ConsultorioDbContext _db;
     private readonly IConfiguration _config;
+    private readonly BitacoraService _bitacora;
     private readonly PasswordHasher<Usuario> _hasher = new();
 
-    public AuthController(ConsultorioDbContext db, IConfiguration config)
+    public AuthController(ConsultorioDbContext db, IConfiguration config, BitacoraService bitacora)
     {
         _db = db;
         _config = config;
+        _bitacora = bitacora;
     }
 
     [HttpPost("login")]
@@ -80,6 +87,7 @@ public class AuthController : ControllerBase
 
         usuario.PasswordHash = _hasher.HashPassword(usuario, cambio.PasswordNuevo);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("CambiarPassword", "Usuario", usuario.UsuarioId, usuario.NombreUsuario);
         return Ok("Contraseña actualizada.");
     }
 
@@ -105,6 +113,7 @@ public class AuthController : ControllerBase
         usuario.PasswordHash = _hasher.HashPassword(usuario, nuevo.Password);
         _db.Usuarios.Add(usuario);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Crear", "Usuario", usuario.UsuarioId, $"{usuario.NombreUsuario} ({usuario.Rol})");
         return StatusCode(StatusCodes.Status201Created,
             new UsuarioDto(usuario.UsuarioId, usuario.NombreUsuario, usuario.Rol, usuario.Activo));
     }
@@ -138,6 +147,7 @@ public class AuthController : ControllerBase
 
         usuario.Activo = cambio.Activo;
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync(usuario.Activo ? "Reactivar" : "Desactivar", "Usuario", usuario.UsuarioId, usuario.NombreUsuario);
         return Ok(new UsuarioDto(usuario.UsuarioId, usuario.NombreUsuario, usuario.Rol, usuario.Activo));
     }
 
@@ -157,6 +167,7 @@ public class AuthController : ControllerBase
 
         usuario.PasswordHash = _hasher.HashPassword(usuario, cambio.PasswordNuevo);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("RestablecerPassword", "Usuario", usuario.UsuarioId, usuario.NombreUsuario);
         return Ok("Contraseña actualizada.");
     }
 

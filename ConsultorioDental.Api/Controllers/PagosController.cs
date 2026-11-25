@@ -32,10 +32,12 @@ public class PagosController : ControllerBase
 
     private readonly ConsultorioDbContext _db;
     private readonly IConfiguration _config;
-    public PagosController(ConsultorioDbContext db, IConfiguration config)
+    private readonly BitacoraService _bitacora;
+    public PagosController(ConsultorioDbContext db, IConfiguration config, BitacoraService bitacora)
     {
         _db = db;
         _config = config;
+        _bitacora = bitacora;
     }
 
     private static PagoDto ToDto(Pago p) => new(
@@ -147,6 +149,7 @@ public class PagosController : ControllerBase
         await _db.SaveChangesAsync();
 
         var creado = await QueryBase().FirstAsync(p => p.PagoId == pago.PagoId);
+        await _bitacora.RegistrarAsync("RegistrarPago", "Pago", pago.PagoId, $"${pago.Monto:0.00} ({pago.MetodoPago}) — Cita {pago.CitaId}");
         return CreatedAtAction(nameof(GetById), new { id = pago.PagoId }, ToDto(creado));
     }
 }

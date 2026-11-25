@@ -17,9 +17,19 @@ public class ConsultorioDbContext : DbContext
     public DbSet<CitaTratamiento> CitaTratamientos => Set<CitaTratamiento>();
     public DbSet<Pago> Pagos => Set<Pago>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Bitacora> Bitacora => Set<Bitacora>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Bitácora: cada registro apunta a su usuario. Restrict:
+        // un usuario con registros en bitácora no se puede borrar
+        // (además, los usuarios nunca se borran, solo se desactivan).
+        modelBuilder.Entity<Bitacora>()
+            .HasOne(b => b.Usuario)
+            .WithMany()
+            .HasForeignKey(b => b.UsuarioId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // NombreUsuario único: no puede haber dos usuarios "admin".
         modelBuilder.Entity<Usuario>()
             .HasIndex(u => u.NombreUsuario)

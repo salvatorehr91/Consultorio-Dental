@@ -23,7 +23,12 @@ namespace ConsultorioDental.Api.Controllers;
 public class PacientesController : ControllerBase
 {
     private readonly ConsultorioDbContext _db;
-    public PacientesController(ConsultorioDbContext db) => _db = db;
+    private readonly BitacoraService _bitacora;
+    public PacientesController(ConsultorioDbContext db, BitacoraService bitacora)
+    {
+        _db = db;
+        _bitacora = bitacora;
+    }
 
     private static PacienteDto ToDto(Paciente p) => new(
         p.PacienteId, p.Nombre, p.Apellido, p.FechaNacimiento, p.Telefono, p.Email, p.Direccion);
@@ -79,6 +84,7 @@ public class PacientesController : ControllerBase
 
         _db.Pacientes.Add(paciente);
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Crear", "Paciente", paciente.PacienteId, $"{paciente.Nombre} {paciente.Apellido}".Trim());
 
         return CreatedAtAction(nameof(GetById), new { id = paciente.PacienteId }, ToDto(paciente));
     }
@@ -101,6 +107,7 @@ public class PacientesController : ControllerBase
         paciente.Direccion = dto.Direccion;
 
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Editar", "Paciente", paciente.PacienteId, $"{paciente.Nombre} {paciente.Apellido}".Trim());
         return Ok(ToDto(paciente));
     }
 
@@ -114,6 +121,7 @@ public class PacientesController : ControllerBase
 
         paciente.Activo = false;
         await _db.SaveChangesAsync();
+        await _bitacora.RegistrarAsync("Eliminar", "Paciente", paciente.PacienteId, $"{paciente.Nombre} {paciente.Apellido}".Trim());
         return NoContent();
     }
 }
