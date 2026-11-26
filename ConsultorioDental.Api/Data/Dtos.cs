@@ -53,3 +53,7 @@ public record UsuarioDto(int UsuarioId, string NombreUsuario, string Rol, bool A
 public record CambiarEstadoUsuarioDto(bool Activo);
 public record RestablecerPasswordDto(string PasswordNuevo);
 public record BitacoraDto(int BitacoraId, DateTime FechaHora, int UsuarioId, string UsuarioNombre, string Accion, string Entidad, int EntidadId, string Detalle);
+
+// Actualización por APK y aviso de citas nuevas (2026-11-25).
+public record VersionAppDto(string Version, string UrlApk, string? Notas);
+public record NuevasCitasDto(int Cantidad, int UltimoId);

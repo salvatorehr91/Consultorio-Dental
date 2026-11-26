@@ -85,6 +85,14 @@ namespace Maui_ClinicaDental
             await Shell.Current.GoToAsync(nameof(BitacoraPage));
         }
 
+        // 2026-11-25 (actualización): revisión manual. Cierra el
+        // menú primero, como los demás handlers.
+        private async void BuscarActualizacion_Clicked(object? sender, EventArgs e)
+        {
+            Shell.Current.FlyoutIsPresented = false;
+            await ActualizacionService.RevisarAsync(manual: true);
+        }
+
         // 2026-11-20 (usuarios): abre la administración de
         // usuarios solo si el logueado es Admin; si no, avisa y no
         // abre (el servidor también lo bloquea con 403).

@@ -115,6 +115,10 @@ public class CitasViewModel : INotifyPropertyChanged
         CitasFiltradas.Clear();
         foreach (var c in _todas.OrderBy(c => c.FechaHora)) CitasFiltradas.Add(c);
         OnPropertyChanged(nameof(TotalCitasTexto));
+
+        // 2026-11-25 (aviso diente): abrir Citas marca todas como vistas.
+        if (_todas.Count > 0)
+            AvisosCitas.MarcarVista(_todas.Max(c => c.Id));
     }
 
     private void Filtrar()

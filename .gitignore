@@ -9,3 +9,5 @@
 /ConsultorioDental.Api/appsettings.Staging.json
 /ConsultorioDental.Api/appsettings.Production.json
 /ConsultorioDental.Api/appsettings.Development.json
+*.aab
+*.apk

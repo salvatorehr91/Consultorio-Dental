@@ -38,16 +38,9 @@ namespace Maui_ClinicaDental.Service
                     return BaseUrlOverride.TrimEnd('/') + "/";
 
 #if ANDROID
-                // CORRECCIÓN 2026-11-18: antes decía https://10.0.2.3:5000/
-                // (10.0.2.3 es el gateway, no tu PC, y https con el
-                // certificado de desarrollo no lo acepta Android).
-                // Emulador: 10.0.2.2 es el alias del localhost de tu PC,
-                // en HTTP. El API debe correr en http://0.0.0.0:5000.
-                // Dispositivo físico: cambia 10.0.2.2 por la IP LAN de
-                // tu PC, p. ej. http://192.168.1.50:5000/
                 return "http://10.0.2.2:5000/";
 #else
-            return "http://localhost:5000/";
+                return "https://localhost:65350/";
 #endif
             }
         }
@@ -176,6 +169,15 @@ namespace Maui_ClinicaDental.Service
             return await GetAsync<List<BitacoraDto>>(url);
         }
 
+        // Versión disponible (2026-11-25): GET /version, sin login.
+        public async Task<VersionAppDto?> GetVersionAsync()
+            => await GetAsync<VersionAppDto>("version");
+
+        // Citas nuevas (2026-11-25): cuántas citas hay con id mayor
+        // que desdeId, para el aviso del diente. No devuelve las citas.
+        public async Task<NuevasCitasDto?> GetCitasNuevasAsync(int desdeId)
+            => await GetAsync<NuevasCitasDto>($"citas/nuevas?desdeId={desdeId}");
+
         // GET /api/citas/hoy
         public async Task<List<CitaDto>?> GetCitasHoyAsync()
             => await GetAsync<List<CitaDto>>("citas/hoy");
@@ -276,8 +278,10 @@ namespace Maui_ClinicaDental.Service
 
         // POST /api/citas — devuelve (true, null) si el servidor la creó
         // (201 Created) o (false, motivo) si no.
-        public async Task<(bool Ok, string? Error)> CrearCitaAsync(NuevaCitaRequest request)
-            => await PostAsync("citas", request);
+        // POST /api/citas — devuelve la cita creada (2026-11-25: la
+        // página marca la cita propia como vista con su id).
+        public async Task<(bool Ok, CitaDto? Cita, string? Error)> CrearCitaAsync(NuevaCitaRequest request)
+            => await PostConRespuestaAsync<NuevaCitaRequest, CitaDto>("citas", request);
 
         // POST /api/pacientes
         public async Task<(bool Ok, string? Error)> CrearPacienteAsync(NuevoPacienteRequest request)
@@ -397,6 +401,39 @@ namespace Maui_ClinicaDental.Service
             catch (TaskCanceledException)
             {
                 return (false, "El API tardó demasiado en responder (timeout de 10 s).");
+            }
+        }
+
+        // POST que devuelve el objeto creado (201), p. ej. POST /citas.
+        // Igual que PostAsync, pero deserializa la respuesta.
+        private async Task<(bool Ok, TRespuesta? Respuesta, string? Error)> PostConRespuestaAsync<T, TRespuesta>(string url, T body)
+        {
+            try
+            {
+                await AplicarTokenAsync();
+                var respuesta = await _http.PostAsJsonAsync(url, body);
+                if (respuesta.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await CerrarSesionAsync();
+                    return (false, default, "Sesión expirada. Vuelve a iniciar sesión.");
+                }
+                if (respuesta.StatusCode == HttpStatusCode.Forbidden)
+                    return (false, default, "No tienes permiso para hacer eso (se requiere Admin).");
+                if (!respuesta.IsSuccessStatusCode)
+                {
+                    var detalle = await respuesta.Content.ReadAsStringAsync();
+                    return (false, default, $"El servidor no guardó el registro ({(int)respuesta.StatusCode}). {detalle}".Trim());
+                }
+                var creado = await respuesta.Content.ReadFromJsonAsync<TRespuesta>();
+                return (true, creado, null);
+            }
+            catch (HttpRequestException ex)
+            {
+                return (false, default, $"No se pudo conectar con el API. Revisa que esté corriendo. Detalle: {ex.Message}");
+            }
+            catch (TaskCanceledException)
+            {
+                return (false, default, "El API tardó demasiado en responder (timeout de 10 s).");
             }
         }
 

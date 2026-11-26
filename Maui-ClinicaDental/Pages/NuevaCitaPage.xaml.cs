@@ -318,12 +318,17 @@ public class NuevaCitaViewModel : INotifyPropertyChanged
                 Notas,
                 TratamientoSeleccionado?.Id);
 
-            var (ok, error) = await _api.CrearCitaAsync(nuevaCita);
+            var (ok, creada, error) = await _api.CrearCitaAsync(nuevaCita);
             if (!ok)
             {
                 MensajeError = error ?? "El servidor no guardó la cita.";
                 return;
             }
+
+            // 2026-11-25 (aviso diente): la cita que uno mismo crea
+            // ya está vista, para que el diente no se encienda por ella.
+            if (creada is not null)
+                AvisosCitas.MarcarVista(creada.CitaId);
 
             await Shell.Current.DisplayAlertAsync(
                 "Cita guardada",
