@@ -22,12 +22,31 @@
                 
                 <Border Grid.Column="1"
                         Padding="10"
-                        BackgroundColor="Transparent"
+                        BackgroundColor="{Binding ColorDiente}"
                         VerticalOptions="Center">
-                    <Label Text="🦷"
-                           FontSize="20"
-                           Padding="10"
-                           HorizontalOptions="Center" />
+                    <!-- 2026-11-25 (aviso diente): se ilumina en dorado
+                         cuando hay citas nuevas; el número es cuántas.
+                         Tocar el diente las marca como vistas y abre Citas. -->
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding VerCitasNuevasCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid>
+                        <Label Text="🦷"
+                               FontSize="20"
+                               Padding="10"
+                               HorizontalOptions="Center" />
+                        <Border IsVisible="{Binding HayCitasNuevas}"
+                                BackgroundColor="#B3261E"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="6,1"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start">
+                            <Label Text="{Binding CitasNuevasCount}"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                        </Border>
+                    </Grid>
                 </Border>
             </Grid>
 

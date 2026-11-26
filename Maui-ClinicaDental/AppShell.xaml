@@ -41,6 +41,11 @@
     <MenuItem Text="Bitácora"
               Clicked="VerBitacora_Clicked" />
 
+    <!-- 2026-11-25 (actualización): revisión manual de una nueva
+         versión. La automática corre sola al abrir la app. -->
+    <!--<MenuItem Text="Buscar actualización"
+              Clicked="BuscarActualizacion_Clicked" />-->
+
     <!-- 2026-11-20 (usuarios): solo Admin (el handler avisa si
          no lo es). Cerrar sesión va después. -->
     <MenuItem Text="Administrar usuarios"

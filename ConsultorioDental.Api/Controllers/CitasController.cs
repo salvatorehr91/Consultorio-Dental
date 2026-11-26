@@ -94,6 +94,17 @@ public class CitasController : ControllerBase
         return Ok(citas.Select(ToDto));
     }
 
+    // GET /citas/nuevas?desdeId=5 — cuántas citas hay con id mayor
+    // que desdeId (para el aviso del diente en MainPage). No devuelve
+    // las citas, solo el conteo y el id mayor.
+    [HttpGet("nuevas")]
+    public async Task<IActionResult> Nuevas([FromQuery] int desdeId = 0)
+    {
+        var ultimoId = await _db.Citas.MaxAsync(c => (int?)c.CitaId) ?? 0;
+        var cantidad = await _db.Citas.CountAsync(c => c.CitaId > desdeId);
+        return Ok(new NuevasCitasDto(cantidad, ultimoId));
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CitaDto>> GetById(int id)
     {

@@ -15,11 +15,32 @@ namespace Maui_ClinicaDental.Pages
             BindingContext = new MainPageViewModel();
         }
 
+        // 2026-11-25 (avisos): al abrir se revisa si hay actualización
+        // (una vez por sesión) y cada 2 minutos si hay citas nuevas.
+        private Microsoft.Maui.Dispatching.IDispatcherTimer? _temporizadorAvisos;
+
         protected override async void OnAppearing()
         {
             base.OnAppearing();
             if (BindingContext is MainPageViewModel vm)
+            {
                 await vm.CargarDesdeApiAsync();
+                await ActualizacionService.RevisarAsync(manual: false);
+            }
+            _temporizadorAvisos = Dispatcher.CreateTimer();
+            _temporizadorAvisos.Interval = TimeSpan.FromMinutes(2);
+            _temporizadorAvisos.Tick += async (_, _) =>
+            {
+                if (BindingContext is MainPageViewModel vm2)
+                    await vm2.RevisarCitasNuevasAsync();
+            };
+            _temporizadorAvisos.Start();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _temporizadorAvisos?.Stop();
         }
     }
 
@@ -59,6 +80,30 @@ namespace Maui_ClinicaDental.Pages
             private set { _estaCargando = value; OnPropertyChanged(); }
         }
 
+        // 2026-11-25 (aviso diente): true cuando hay citas nuevas
+        // desde la última vez que se vieron. El diente se ilumina
+        // en dorado y muestra el conteo. Tocar el diente las marca
+        // como vistas y abre Citas.
+        private bool _hayCitasNuevas;
+        public bool HayCitasNuevas
+        {
+            get => _hayCitasNuevas;
+            private set { _hayCitasNuevas = value; OnPropertyChanged(); OnPropertyChanged(nameof(ColorDiente)); }
+        }
+
+        private int _citasNuevasCount;
+        public int CitasNuevasCount
+        {
+            get => _citasNuevasCount;
+            private set { _citasNuevasCount = value; OnPropertyChanged(); }
+        }
+
+        public string ColorDiente => HayCitasNuevas ? "#FFD54F" : "Transparent";
+
+        private int _ultimoIdNuevo;
+
+        public ICommand VerCitasNuevasCommand { get; }
+
         public ObservableCollection<CitaHoy> CitasHoy { get; } = new()
         {
             new("09:00", "45 min", "María López", "Limpieza dental", "Dra. Ana Pérez", "Confirmada", "#0E7C7B"),
@@ -89,6 +134,7 @@ namespace Maui_ClinicaDental.Pages
             VerDentistasCommand = new Command(async () => await NavegarAsync("DentistasPage", "Dentistas"));
             VerTratamientosCommand = new Command(async () => await NavegarAsync("TratamientosPage", "Tratamientos"));
             VerReportesCommand = new Command(async () => await NavegarAsync("ReportesPage", "Reportes"));
+            VerCitasNuevasCommand = new Command(async () => await VerCitasNuevasAsync());
         }
 
         public async Task CargarDesdeApiAsync()
@@ -111,6 +157,36 @@ namespace Maui_ClinicaDental.Pages
             var count = await _api.GetPacientesCountAsync();
             if (count.HasValue && _api.UltimoError is null)
                 TotalPacientes = count.Value;
+
+            await RevisarCitasNuevasAsync();
+        }
+
+        // Revisa si hay citas nuevas (no mueve el indicador de
+        // carga: la revisión del temporizador es en segundo plano).
+        public async Task RevisarCitasNuevasAsync()
+        {
+            var nuevas = await _api.GetCitasNuevasAsync(AvisosCitas.UltimaVista);
+            if (nuevas is null)
+                return; // sin conexión: el diente queda como estaba
+
+            if (!AvisosCitas.Existe)
+            {
+                // Primera vez: lo que ya existe no es "nuevo".
+                AvisosCitas.MarcarVista(nuevas.UltimoId);
+                return;
+            }
+
+            _ultimoIdNuevo = nuevas.UltimoId;
+            HayCitasNuevas = nuevas.Cantidad > 0;
+            CitasNuevasCount = nuevas.Cantidad;
+        }
+
+        private async Task VerCitasNuevasAsync()
+        {
+            AvisosCitas.MarcarVista(_ultimoIdNuevo);
+            HayCitasNuevas = false;
+            CitasNuevasCount = 0;
+            await NavegarAsync("CitasPage", "Citas");
         }
 
         private async Task BuscarPacienteAsync(string? texto)

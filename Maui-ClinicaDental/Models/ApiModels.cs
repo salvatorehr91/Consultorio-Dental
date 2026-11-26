@@ -300,3 +300,13 @@ public record BitacoraDto(
     [property: JsonPropertyName("entidad")] string Entidad,
     [property: JsonPropertyName("entidadId")] int EntidadId,
     [property: JsonPropertyName("detalle")] string Detalle);
+
+// Actualización por APK y aviso de citas nuevas (2026-11-25).
+public record VersionAppDto(
+    [property: JsonPropertyName("version")] string Version,
+    [property: JsonPropertyName("urlApk")] string UrlApk,
+    [property: JsonPropertyName("notas")] string? Notas);
+
+public record NuevasCitasDto(
+    [property: JsonPropertyName("cantidad")] int Cantidad,
+    [property: JsonPropertyName("ultimoId")] int UltimoId);
