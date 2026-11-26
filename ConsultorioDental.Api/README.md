@@ -2,7 +2,7 @@
 
 API REST para el consultorio dental: pacientes, dentistas, tratamientos, citas, pagos con comprobante y reportes. La base de datos es SQL Server (script en `../DB/ConsultorioDental.sql`); Entity Framework Core solo la lee, no la crea.
 
-> Estado: funcional de extremo a extremo en local. Validado contra `main` el 2026-11-19.
+> Estado: funcional de extremo a extremo en local. Validado contra `main` (`03f0624`) el 2026-11-25.
 
 ## Tecnologías
 
@@ -21,21 +21,25 @@ ConsultorioDental.Api/
 ├── Context/
 │   └── ConsultorioDbContext.cs       # DbSets y relaciones (namespace ConsultorioDental.Api.Context)
 ├── Models/
-│   └── Entidades.cs                  # Dentista, Paciente, Tratamiento, Cita, CitaTratamiento, Pago
+│   └── Entidades.cs                  # Dentista, Paciente, Tratamiento, Cita, CitaTratamiento, Pago, Usuario, Bitacora
 ├── Data/
-│   └── Dtos.cs                       # Contratos JSON (DTOs de lectura, creación, edición y reportes)
+│   ├── Dtos.cs                       # Contratos JSON (DTOs de lectura, creación, edición y reportes)
+│   └── BitacoraService.cs            # Registra cambios en la bitácora (nunca rompe la operación)
 └── Controllers/
     ├── PacientesController.cs
     ├── DentistasController.cs
     ├── TratamientosController.cs
-    ├── CitasController.cs            # Incluye GET /hoy y PUT /{id}/estado
+    ├── CitasController.cs            # Incluye GET /hoy, GET /nuevas y PUT /{id}/estado
     ├── PagosController.cs            # Incluye GET /{id}/comprobante
-    └── ReportesController.cs
+    ├── ReportesController.cs
+    ├── AuthController.cs             # Login JWT y administración de usuarios
+    ├── BitacoraController.cs         # GET /bitacora (solo Admin)
+    └── VersionController.cs          # GET /version (sin login)
 ```
 
 ## Base de datos
 
-Ejecuta `../DB/ConsultorioDental.sql` en SQL Server. Crea la base `ConsultorioDental` si no existe y las 6 tablas: **Dentistas, Pacientes, Tratamientos, Citas, CitaTratamientos, Pagos**.
+Ejecuta `../DB/ConsultorioDental.sql` en SQL Server. Crea la base `ConsultorioDental` si no existe y las 8 tablas: **Dentistas, Pacientes, Tratamientos, Citas, CitaTratamientos, Pagos, Usuarios y Bitacora**.
 
 Estados de cita: `Programada`, `Confirmada`, `Completada`, `Cancelada`, `NoAsistio`.
 Métodos de pago: `Efectivo`, `Tarjeta`, `Transferencia`, `Otro`. Estados de pago: `Pagado`, `Pendiente`, `Reembolsado`.
@@ -62,6 +66,7 @@ Métodos de pago: `Efectivo`, `Tarjeta`, `Transferencia`, `Otro`. Estados de pag
 | DELETE | `/tratamientos/{id}` | Baja lógica |
 | GET | `/citas?fecha={yyyy-MM-dd}&estado={estado}` | Lista de citas con filtros |
 | GET | `/citas/hoy` | Citas de hoy (hora de México), ordenadas por hora |
+| GET | `/citas/nuevas?desdeId={id}` | Cuántas citas hay con id mayor que `desdeId` (aviso del diente) |
 | GET | `/citas/{id}` | Una cita |
 | POST | `/citas` | Crear cita (inserta en `CitaTratamientos` al precio del catálogo) |
 | PUT | `/citas/{id}` | Editar cita (si trae `TratamientoId`, reemplaza el tratamiento) |
@@ -84,6 +89,10 @@ Sin `desde`/`hasta`, los reportes usan el mes en curso (hora de México). El per
 | POST | `/auth/cambiar-password` | Cambiar la contraseña del usuario logueado |
 | POST | `/auth/usuarios` | Crear un usuario (solo Admin) |
 | GET | `/auth/usuarios` | Lista de usuarios, sin el hash (solo Admin) |
+| PUT | `/auth/usuarios/{id}/activo` | Desactivar/reactivar un usuario (solo Admin; no a uno mismo) |
+| PUT | `/auth/usuarios/{id}/password` | Restablecer la contraseña de un usuario (solo Admin) |
+| GET | `/bitacora?desde=&hasta=&usuarioId=&entidad=&accion=` | Bitácora de cambios, la más reciente primero (solo Admin) |
+| GET | `/version` | Versión actual de la app y enlace del APK (sin login) |
 
 ## Decisiones que se tomaron
 
@@ -92,7 +101,10 @@ Sin `desde`/`hasta`, los reportes usan el mes en curso (hora de México). El per
 - **Fechas: citas en hora local, pagos en UTC.** `FechaHora` de la cita se guarda como llega (hora del consultorio). `FechaPago` se pone en el servidor con `DateTime.UtcNow`. Por eso los filtros de pagos y los reportes convierten el rango a hora de México: un pago de las 20:00 en CDMX no debe caer al día siguiente. `GET /citas/hoy` también usa la hora de México, no `DateTime.Today` del servidor.
 - **Solo `Pagado` cuenta como cobrado** en los reportes. El total por tratamiento es lo cobrado en su momento (`Precio × Cantidad` de `CitaTratamientos`), no el precio actual del catálogo.
 - **El comprobante trae los datos del consultorio** desde la sección `"Consultorio"` de `appsettings.json` (nombre, dirección, teléfono, email). El folio es `PAG-{PagoId:0000}`.
-- **Autenticación con JWT.** Cada llamada (salvo el login) necesita el token como `Authorization: Bearer <token>`. `POST /auth/login` lo devuelve. Los DELETE solo los puede hacer un usuario con rol `Admin`.
+- **Autenticación con JWT.** Cada llamada (salvo el login y `GET /version`) necesita el token como `Authorization: Bearer <token>`. `POST /auth/login` lo devuelve. Los DELETE solo los puede hacer un usuario con rol `Admin`. Swagger tiene botón Authorize: se inicia sesión en `POST /auth/login`, se copia el token y se pega (Swagger agrega el "Bearer").
+- **Bitácora.** Cada crear/editar/eliminar exitoso registra quién (del JWT), qué acción, qué entidad e id y un detalle. El registro se hace después de guardar y, si falla, nunca rompe la operación. Los logins y los GET no se registran. Los usuarios nunca se borran, solo se desactivan, para que la bitácora siempre pueda decir quién hizo cada cambio.
+- **Reportes: agrupar en memoria.** EF Core no traduce el `GroupBy` del servidor en este proyecto, así que los reportes traen una proyección plana con `ToListAsync()` y agrupan en memoria (LINQ-to-Objects). El volumen es pequeño (período máximo 366 días).
+- **`GET /version` es público a propósito.** La app lo consulta al abrir y con la sesión vencida; solo expone la versión disponible y la URL pública del APK.
 
 ## Configuración
 
@@ -139,6 +151,20 @@ En `appsettings.json`, sección `"Consultorio"` (hoy con valores de ejemplo; cam
 }
 ```
 
+### Actualización de la app (APK)
+
+En `appsettings.json`, sección `"Actualizacion"`:
+
+```json
+"Actualizacion": {
+  "Version": "1.0.0",
+  "UrlApk": "https://github.com/salvatorehr91/Consultorio-Dental/releases/latest/download/consultorio-dental.apk",
+  "Notas": ""
+}
+```
+
+`Version` debe ser la misma que `ApplicationDisplayVersion` en el `.csproj` de la app. `UrlApk` es la descarga directa del APK publicado en GitHub Releases (el archivo del release, con el nombre `consultorio-dental.apk`).
+
 ## Cómo correrlo
 
 1. Ejecuta `../DB/ConsultorioDental.sql` en SQL Server.
@@ -147,6 +173,4 @@ En `appsettings.json`, sección `"Consultorio"` (hoy con valores de ejemplo; cam
 
 ## Pendiente (de este proyecto)
 
-- Autenticación y roles: entregado 2026-11-20 en `login-admin-2026-11-20/` (pendiente de copiar y probar). Tabla `Usuarios` + JWT + roles Admin/Recepcionista.
-- Bitácora de cambios (quién creó, editó o eliminó cada registro).
 - Publicar UAT/Producción (Azure App Service + Azure SQL recomendado) con la cadena por variable de entorno del servicio.
