@@ -59,9 +59,14 @@ namespace Maui_ClinicaDental.Pages
             private set { _totalPacientes = value; OnPropertyChanged(); }
         }
 
-        // Derivada de la colección: la hora más temprana de hoy.
+        // Derivada de la colección: la próxima cita es la primera
+        // de hoy que aún no ha empezado (hora >= ahora), no la más
+        // temprana del día. Si ya pasaron todas, "--:--".
+        // Las horas son "HH:mm", así que compararlas como texto
+        // ordena igual que comparar horas.
         public string ProximaCitaHora => CitasHoy
             .Select(c => c.Hora)
+            .Where(h => string.Compare(h, DateTime.Now.ToString("HH:mm"), StringComparison.Ordinal) >= 0)
             .OrderBy(h => h)
             .FirstOrDefault() ?? "--:--";
 
@@ -165,6 +170,11 @@ namespace Maui_ClinicaDental.Pages
         // carga: la revisión del temporizador es en segundo plano).
         public async Task RevisarCitasNuevasAsync()
         {
+            // 2026-11-25 (próxima cita): el temporizador llama a este
+            // método cada 2 minutos; al recalcular aquí, la hora de
+            // la próxima cita se actualiza sola al pasar el tiempo.
+            OnPropertyChanged(nameof(ProximaCitaHora));
+
             var nuevas = await _api.GetCitasNuevasAsync(AvisosCitas.UltimaVista);
             if (nuevas is null)
                 return; // sin conexión: el diente queda como estaba

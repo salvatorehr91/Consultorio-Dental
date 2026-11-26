@@ -1,0 +1,10 @@
+﻿################################################################################
+# Este archivo .gitignore ha sido creado automáticamente por Microsoft(R) Visual Studio.
+################################################################################
+
+/ConsultorioDental.Api/bin/Debug/net8.0
+/ConsultorioDental.Api/.vs
+/ConsultorioDental.Api/obj
+/ConsultorioDental.Api/appsettings.Development.json
+*.aab
+*.apk
